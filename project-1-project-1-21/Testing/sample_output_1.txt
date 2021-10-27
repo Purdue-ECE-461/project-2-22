@@ -1,0 +1,6 @@
+URL NET_SCORE RAMP_UP_SCORE CORRECTNESS_SCORE BUS_FACTOR_SCORE RESPONSIVE_MAINTAINER_SCORE LICENSE_SCORE
+https://github.com/nullivex/nodist 0.9 0.5 0.7 0.3 0.4 1
+https://www.npmjs.com/package/browserify 0.76 0.5 0.7 0.3 0.6 1
+https://github.com/cloudinary/cloudinary_npm 0.6 0.5 0.7 0.3 0.2 1
+https://github.com/lodash/lodash 0.5 0.5 0.3 0.7 0.6 1
+https://www.npmjs.com/package/express 0 0.5 0.7 0.3 0.6 0

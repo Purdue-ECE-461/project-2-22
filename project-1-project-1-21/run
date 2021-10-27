@@ -65,13 +65,19 @@ if __name__ == '__main__':
             responsivenessScorer = ResponsivenessScore(package)
             responsiveness = responsivenessScorer.score()
 
+            # Get Dependency Score - NEW
+            from Scoring.Dependency.DependencyScore import DependencyScore
+            dependencyScorer = DependencyScore(package)
+            dependency = dependencyScorer.score()
+
             # Get Total Score
             scores = [
                 busFactor,
                 correctness,
                 licenseCompatibility,
                 rampUp,
-                responsiveness]
+                responsiveness,
+                dependency]
             totalScorer = TotalScore(scores)
             totalScore = totalScorer.score()
 
@@ -82,7 +88,8 @@ if __name__ == '__main__':
                                          correctness_score=correctness,
                                          license_score=licenseCompatibility,
                                          ramp_up_score=rampUp,
-                                         responsiveness_score=responsiveness)
+                                         responsiveness_score=responsiveness,
+                                         dependency_score=dependency)
 
             scoreCardList.append(scoreCard)
 

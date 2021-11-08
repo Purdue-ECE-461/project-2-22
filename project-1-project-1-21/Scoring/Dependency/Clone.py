@@ -24,6 +24,7 @@ def module_clone_readme_analyzer(module_name):
     directory = os.path.join(cwd, module_name)
     count = 0
     total = 0
+    score = 0
     for filename in os.listdir(directory):
         if filename == "package.json":
             name = directory + "/package.json"
@@ -38,6 +39,6 @@ def module_clone_readme_analyzer(module_name):
                 #else:
                 #    print(value, "no")
                 total += 1
-    score = count/total
+            score = count/total
     #print(score)
     return score

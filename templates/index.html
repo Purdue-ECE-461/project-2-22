@@ -22,6 +22,15 @@
   <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
   <script src="{{ url_for('static', filename='script.js') }}"></script>
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 50%;
+    }
+    tr {
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
 </head>
 <body>
 
@@ -29,10 +38,103 @@
 
   <h2>{{ endpoint }}</h2>
 
-  <h2><a href="/packages">Get Packages</a></h2>
+  <h2><a href="/packages">Get All Packages</a></h2>
+  <h2><a href="/package/10">Get Single Packages</a></h2>
   <h2><a href="/reset">Reset</a></h2>
-  <h2><a href="/package/10">Get Packages</a></h2>
 
+  <center>
+    <table>
+      <tr>
+        <th>Command</th>
+        <th>Value (if nec)</th>
+        <th>Go</th>
+      </tr>
+      <tr>
+        <td>Get all packages</td>
+        <td>NA</td>
+        <td><h2><a href="/packages">Go</a></h2></td>
+      </tr>
+      <tr>
+        <td>Get single package</td>
+        <td><input type="number" id="getPackage" name="package"></td>
+        <td>
+            <button onclick='window.location ="/package/"+document.getElementById("getPackage").value' data-method="DELETE">Go</button>
+        </td>
+      </tr>
+    </table>
+  </center>
+
+  <br>
+  <br>
+  <br>
+
+  <center>
+    <table>
+      <tr>
+        <th>Command</th>
+        <th>Request</th>
+        <th>Input Value</th>
+      </tr>
+      <tr>
+        <td>Get all packages</td>
+        <td>List</td>
+        <td>Blank</td>
+      </tr>
+      <tr>
+        <td>Get single package</td>
+        <td>List</td>
+        <td>Id number</td>
+      </tr>
+      <tr>
+        <td>Post package</td>
+        <td>Upload</td>
+        <td>Blank (for now but ???)</td>
+      </tr>
+      <tr>
+        <td>Update package</td>
+        <td>Update</td>
+        <td>Id number</td>
+      </tr>
+      <tr>
+        <td>Delete single package</td>
+        <td>Delete</td>
+        <td>Blank</td>
+      </tr>
+      <tr>
+        <td>Rate package</td>
+        <td>Rate</td>
+        <td>Id number</td>
+      </tr>
+      <tr>
+        <td>Reset (delete all packages)</td>
+        <td>Delete</td>
+        <td>Blank</td>
+      </tr>
+    </table>
+  </center>
+
+  <br>
+  <br>
+  <br>
+
+  Run Command
+  <br>
+  <br>
+  <form action="/start" method="post">
+    <select name="requestType">
+      <option value="list">list</option>
+      <option value="upload">upload</option>
+      <option value="update">update</option>
+      <option value="rate">rate</option>
+      <option value="delete">delete</option>
+    </select>
+    Id: <input type="number" name="id">
+    <input type="submit" name= "submit" value="Submit" />
+  </form>
+
+  <br>
+  <br>
+  <br>
 
   <h2>Last 10 visits</h2>
   {% for time in times %}
@@ -49,6 +151,15 @@
 
     // Your web app's Firebase configuration
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAZ2rstub-bmmtIplT9UXXfk4TTTQZQufo",
+      authDomain: "ece-461-project-2-22.firebaseapp.com",
+      projectId: "ece-461-project-2-22",
+      storageBucket: "ece-461-project-2-22.appspot.com",
+      messagingSenderId: "678608535588",
+      appId: "1:678608535588:web:f181956299439eb02058b1",
+      measurementId: "G-GRZYFEEB3Q"
+    };
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);

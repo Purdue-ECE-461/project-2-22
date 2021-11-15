@@ -15,6 +15,7 @@ class PackageScoreCard:
         license_score=0,
         ramp_up_score=0,
         responsiveness_score=0,
+        dependency_score=0,
     ):
         self.url = url
         self.total_score = total_score
@@ -23,6 +24,7 @@ class PackageScoreCard:
         self.license_compatibility_score = license_score
         self.ramp_up_score = ramp_up_score
         self.responsiveness_score = responsiveness_score
+        self.dependency_score = dependency_score
 
     def toString(self):
         # URL NET_SCORE RAMP_UP_SCORE CORRECTNESS_SCORE BUS_FACTOR_SCORE
@@ -41,5 +43,7 @@ class PackageScoreCard:
             + str(round(self.responsiveness_score, 1))
             + " "
             + str(round(self.license_compatibility_score, 1))
+            + " "
+            + str(round(self.dependency_score, 1))
         )
         return score_string

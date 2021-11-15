@@ -1,43 +1,70 @@
 import datetime
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, make_response, Response
 from firebase import firebase
 from google.cloud import storage
 from google.auth.transport import requests
 from google.cloud import datastore
 import google.oauth2.id_token
+from flask_login import login_user, logout_user, current_user, login_required, LoginManager
+from werkzeug.utils import redirect
 
+from database_helper import *
+from flask_restful import Api, Resource, reqparse, abort
 import os
 
-#os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ece-461-project-2-22-44eb5eb60671.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ece-461-project-2-22-44eb5eb60671.json"
 
-#firebase = firebase.FirebaseApplication('https://ece-461-project-2-22-default-rtdb.firebaseio.com/', None)
+# firebase = firebase.FirebaseApplication('https://ece-461-project-2-22-default-rtdb.firebaseio.com/', None)
 data = {
-    'Name' : 'Alia Ahmed'
+    'Name': 'Alia Ahmed'
 }
-#result = firebase.post('ece-461-project-2-22-default-rtdb/User', data)
-#print(result)
-#result = firebase.get('ece-461-project-2-22-default-rtdb/User', '')
-#print(result)
-#firebase.put('ece-461-project-2-22-default-rtdb/User/-MnxvizzcJgrLFXzUMsE', 'Name', 'rania')
-#firebase.delete('ece-461-project-2-22-default-rtdb/User/', '-MnxvizzcJgrLFXzUMsE''')
-#print("deleted")
+# result = firebase.post('ece-461-project-2-22-default-rtdb/User', data)
+# print(result)
+# result = firebase.get('ece-461-project-2-22-default-rtdb/User', '')
+# print(result)
+# firebase.put('ece-461-project-2-22-default-rtdb/User/-MnxvizzcJgrLFXzUMsE', 'Name', 'rania')
+# firebase.delete('ece-461-project-2-22-default-rtdb/User/', '-MnxvizzcJgrLFXzUMsE''')
+# print("deleted")
 
-#client = storage.Client()
-#bucket = client.get_bucket('staging.ece-461-project-2-22.appspot.com')
-#imageBlob = bucket.blob("/")
-#imagePath = "IMG_3047.JPG"
-#imageBlob = bucket.blob("IMG_3047")
-#imageBlob.upload_from_filename(imagePath)
+# client = storage.Client()
+# bucket = client.get_bucket('staging.ece-461-project-2-22.appspot.com')
+# imageBlob = bucket.blob("/")
+# imagePath = "IMG_3047.JPG"
+# imageBlob = bucket.blob("IMG_3047")
+# imageBlob.upload_from_filename(imagePath)
 
 app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
 firebase_request_adapter = requests.Request()
+
+# random key is needed to keep the connection secure to the server
+app.config['SECRET_KEY'] = 'os.urandom(48)'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+api = Api(app)
+db.init_app(app)
+db.create_all(app=app)
+
+ROWS_PER_PAGE = 5
+
+
+@login_manager.user_loader
+def load_user(id):
+    return UserDB.query.get(int(id))
 
 
 @app.route('/')
 def root():
     # For the sake of example, use static information to inflate the template.
     # This will be replaced with real information in later steps.
+    if current_user.is_authenticated:
+        print("Current user is authenticated")
+    else:
+        print("Current user is not authenticated")
+
     dummy_times = [datetime.datetime(2018, 1, 1, 10, 0, 0),
                    datetime.datetime(2018, 1, 2, 10, 30, 0),
                    datetime.datetime(2018, 1, 3, 11, 0, 0),
@@ -68,56 +95,208 @@ def root():
 
     print(claims)
 
-    return render_template('index.html', times=dummy_times, endpoint='root', user_data=claims, error_message=error_message)
+    return render_template('index.html', times=dummy_times, endpoint='root', user_data=claims,
+                           error_message=error_message)
 
 
 @app.route('/packages', methods=['GET'])
 def get_packages():
-    return render_template('page.html', endpoint='GET: packages')
+    header = request.args.get('offset')
+    print(header)
+    header = request.headers.get('Content-Type')
+    print(header)
+
+    message_parser = reqparse.RequestParser()
+    message_parser.add_argument('Version', type=str)
+    message_parser.add_argument('Name', type=str)
+    args = message_parser.parse_args()
+
+    print(args['Version'])
+    print(args['Name'])
+
+    data = '''[{"id": 1,
+            "name": "Zaza",
+            "tag": "cat"},
+            {"id": 1,
+             "name": "Zaza",
+             "tag": "cat"}
+            ]'''
+
+    resp = Response(response=data,
+                    status=200,
+                    mimetype="application/json")
+
+    return resp
+
+    # return render_template('page.html', endpoint='GET: packages')
 
 
 @app.route('/reset', methods=['DELETE'])
 def delete_all_packages():
+    # return 200 registry is reset
+    # return 401 no permissions to reset the registry
     return render_template('page.html', endpoint='DELETE: reset')
 
 
 @app.route('/package/<id>', methods=['GET'])
 def get_package_by_id(id):
-    return render_template('page.html', endpoint=('GET: package/' + str(id)))
+    print(id)
+    data = {
+        "metadata": {
+            "Name": "string",
+            "Version": "1.2.3",
+            "ID": "string"
+        },
+        "data": {
+            "Content": "string",
+            "URL": "string",
+            "JSProgram": "string"
+        }
+    }
+
+    r = make_response(data)
+    r.mimetype = 'application/json'
+
+    render_template('page.html', endpoint=('GET: package/' + str(id)))
+    return r
 
 
 @app.route('/package/<id>', methods=['PUT'])
 def update_package(id):
+    # the name, version, and ID must match
+    # the package contents will replace the previous contents
+    print(id)
+
+    root_parser = reqparse.RequestParser()
+    root_parser.add_argument('metadata', type=dict)
+    root_parser.add_argument('data', type=dict)
+
+    message_parser = reqparse.RequestParser()
+    message_parser.add_argument('Name', type=str, location=('metadata',), required=True)
+    message_parser.add_argument('Version', type=str, location=('metadata',), required=True)
+    message_parser.add_argument('ID', type=str, location=('metadata',), required=True)
+
+    message_parser.add_argument('Content', type=str, location=('data',), required=False)
+    message_parser.add_argument('URL', type=str, location=('data',), required=False)
+    message_parser.add_argument('JSProgram', type=str, location=('data',), required=False)
+
+    root_args = root_parser.parse_args()
+    args = message_parser.parse_args(req=root_args)
+    print(args['Name'])
+    print(args['Version'])
+    print(args['ID'])
+
+    # response 200 for success
+    # response 400 for a malformed request: no such package
+
     return render_template('page.html', endpoint=('PUT: package/' + str(id)))
 
 
 @app.route('/package/<id>', methods=['DELETE'])
 def delete_package_by_id(id):
+    print(id)
+    # response 200 for success
+    # response 400 for a malformed request: no such package
     return render_template('page.html', endpoint=('DELETE: package/' + str(id)))
 
 
 @app.route('/package', methods=['POST'])
 def post_package():
-    return render_template('page.html', endpoint='POST: package')
+    header = request.headers.get('X-Authorization')
+    print(header)
+
+    root_parser = reqparse.RequestParser()
+    root_parser.add_argument('metadata', type=dict)
+    root_parser.add_argument('data', type=dict)
+
+    message_parser = reqparse.RequestParser()
+    message_parser.add_argument('Name', type=str, location=('metadata',), required=True)
+    message_parser.add_argument('Version', type=str, location=('metadata',), required=True)
+    message_parser.add_argument('ID', type=str, location=('metadata',), required=True)
+
+    message_parser.add_argument('Content', type=str, location=('data',), required=False)
+    message_parser.add_argument('URL', type=str, location=('data',), required=False)
+    message_parser.add_argument('JSProgram', type=str, location=('data',), required=False)
+
+    root_args = root_parser.parse_args()
+    args = message_parser.parse_args(req=root_args)
+    print(args['Name'])
+    print(args['Version'])
+    print(args['ID'])
+
+    # if package exists already: return 403 code
+    # status_code = flask.Response(status=201)
+
+    # if malformed request
+
+    data = {"Name": "string", "Version": "1.2.3", "ID": "test"}
+    r = make_response(data)
+    r.mimetype = 'application/json'
+    return r
+    # response = Response(response=data, status=201, mimetype='application/json')
 
 
 @app.route('/package/<id>/rate', methods=['GET'])
 def rate_package_by_id(id):
-    return render_template('page.html', endpoint=('GET: package/' + str(id)) + '/rate')
+    print(id)
+    #if successful rating
+    data = {
+          "BusFactor": 0,
+          "Correctness": 0,
+          "RampUp": 0,
+          "ResponsiveMaintainer": 0,
+          "LicenseScore": 0,
+          "GoodPinningPractice": 0
+        }
+    r = make_response(data)
+    r.mimetype = 'application/json'
+    # return 400 for no such package; return 500 for failure in rating
+    return r
+
+    # return render_template('page.html', endpoint=('GET: package/' + str(id)) + '/rate')
 
 
 @app.route('/authenticate', methods=['PUT'])
 def authenticate():
-    return render_template('page.html', endpoint='GET: authenticate')
+    root_parser = reqparse.RequestParser()
+    root_parser.add_argument('User', type=dict)
+    root_parser.add_argument('Secret', type=dict)
+
+    message_parser = reqparse.RequestParser()
+    message_parser.add_argument('name', type=str, location=('User',))
+    message_parser.add_argument('isAdmin', type=str, location=('User',))
+    message_parser.add_argument('password', type=str, location=('Secret',))
+    root_args = root_parser.parse_args()
+    args = message_parser.parse_args(req=root_args)
+    print(args['name'])
+    print(args['isAdmin'])
+    print(args['password'])
+    return redirect(url_for('/', endpoint='GET: authenticate'))
 
 
-@app.route('/package/byName/{name}', methods=['GET'])
+@app.route('/package/byName/<name>', methods=['GET'])
 def get_package_by_name(name):
-    return render_template('page.html', endpoint=('GET: package/byName/' + str(name)))
+    print(name)
+    # on success return package history
+    # on no such package return 400
+    # on error default
+
+    data = {
+              "id": 1,
+              "name": "Zaza",
+              "tag": "cat"
+            }
+    r = make_response(data)
+    r.mimetype = 'application/json'
+    # return 400 for no such package; return 500 for failure in rating
+    render_template('page.html', endpoint=('GET: package/byName/' + str(name)))
+    return r
 
 
-@app.route('/package/byName/{name}', methods=['DELETE'])
+@app.route('/package/byName/<name>', methods=['DELETE'])
 def delete_package_by_name(name):
+    print(name)
+    # return 400 for no such package; return 200 for success
     return render_template('page.html', endpoint=('DELETE: package/byName/' + str(name)))
 
 

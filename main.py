@@ -1,10 +1,10 @@
 import datetime
 
 from flask import Flask, render_template, request
-#from firebase import firebase
-#from google.cloud import storage
+from firebase import firebase
+from google.cloud import storage
 from google.auth.transport import requests
-#from google.cloud import datastore
+from google.cloud import datastore
 import google.oauth2.id_token
 
 import os

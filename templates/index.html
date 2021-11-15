@@ -38,36 +38,6 @@
 
   <h2>{{ endpoint }}</h2>
 
-  <h2><a href="/packages">Get All Packages</a></h2>
-  <h2><a href="/package/10">Get Single Packages</a></h2>
-  <h2><a href="/reset">Reset</a></h2>
-
-  <center>
-    <table>
-      <tr>
-        <th>Command</th>
-        <th>Value (if nec)</th>
-        <th>Go</th>
-      </tr>
-      <tr>
-        <td>Get all packages</td>
-        <td>NA</td>
-        <td><h2><a href="/packages">Go</a></h2></td>
-      </tr>
-      <tr>
-        <td>Get single package</td>
-        <td><input type="number" id="getPackage" name="package"></td>
-        <td>
-            <button onclick='window.location ="/package/"+document.getElementById("getPackage").value' data-method="DELETE">Go</button>
-        </td>
-      </tr>
-    </table>
-  </center>
-
-  <br>
-  <br>
-  <br>
-
   <center>
     <table>
       <tr>

@@ -105,6 +105,38 @@ def root():
     return render_template('index.html', times=dummy_times, endpoint='root', user_data=claims,
                            error_message=error_message)
 
+@app.route('/start', methods=['POST'])
+def start():
+    id = request.form['id']
+    select = request.form.get('requestType')
+    if select == "list":
+        if id == "":
+            return get_packages()
+        else:
+            return get_package_by_id(id)
+        #get packages
+    elif select == "upload":
+        return post_package()
+        #upload stuff
+    elif select == "update":
+        return update_package(id)
+        #update stuff
+    elif select == "rate":
+        if id == "":
+            return "Invalid package Id"
+        else:
+            return rate_package_by_id(id)
+        #rate stuff
+    elif select == "delete":
+        if id == "":
+            return delete_all_packages()
+        else:
+            return delete_package_by_id(id)
+        #delete stuff
+    else:
+        pass
+        #error then, dont think this is possible though
+    return "this is " + select + " and " + str(id)
 
 @app.route('/packages', methods=['POST'])
 def get_packages():

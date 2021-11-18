@@ -1,13 +1,16 @@
 import datetime
+from Actions import Create, Upload, Download
 
 from flask import Flask, render_template, request
-from firebase import firebase
-from google.cloud import storage
+#from firebase import firebase
+#from google.cloud import storage
 from google.auth.transport import requests
-from google.cloud import datastore
+#from google.cloud import datastore
 import google.oauth2.id_token
 
 import os
+
+import mainHelper
 
 #os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ece-461-project-2-22-44eb5eb60671.json"
 
@@ -130,11 +133,33 @@ def delete_package_by_id(id):
 
 @app.route('/package', methods=['POST'])
 def post_package():
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/Users/justinlukowski/Downloads" \
+                                            "ece-461-project-2-22-441ab13258f1.json"
+
+
+    bucketName = "test_justin_139pm"
+    fileName = "encoded-20211117185003.txt"
+
+    #print("create")
+    #Create.create_bucket(bucketName)
+    print("upload")
+    Upload.upload_file(fileName, f"gs://{bucketName}")
+
     return render_template('page.html', endpoint='POST: package')
 
 
 @app.route('/package/<id>/rate', methods=['GET'])
 def rate_package_by_id(id):
+    bucket = "test_justin_139pm"
+    filename_gcp = "encoded-20211117185003.txt"
+    folder_dest_local = "/Users/justinlukowski/Documents/461/project-2-22/justintest"
+
+    print("download")
+    Download.download_file(bucket, filename_gcp, folder_dest_local)
+
+    print("rank - main")
+    mainHelper.rank("/Users/justinlukowski/Documents/461/project-2-22/justintest/encoded-20211117185003.txt")
+
     return render_template('page.html', endpoint=('GET: package/' + str(id)) + '/rate')
 
 

@@ -1,5 +1,5 @@
 import os
-import ActionHelper
+from Actions import ActionHelper
 
 
 def upload_file(source_file_local, destination_bucket_gcp):

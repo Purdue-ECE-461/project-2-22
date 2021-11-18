@@ -1,6 +1,8 @@
 import datetime
 
-from flask import Flask, render_template, request, url_for, make_response, Response
+from flask import Flask, render_template, request, url_for, make_response, Response, jsonify
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
+
 from firebase import firebase
 from google.cloud import storage
 from google.auth.transport import requests
@@ -35,8 +37,8 @@ data = {
 # imageBlob.upload_from_filename(imagePath)
 
 app = Flask(__name__)
-login_manager = LoginManager()
-login_manager.init_app(app)
+app.config["JWT_SECRET_KEY"] = str(os.urandom(48))
+jwt = JWTManager(app)
 firebase_request_adapter = requests.Request()
 
 # random key is needed to keep the connection secure to the server
@@ -51,10 +53,29 @@ db.create_all(app=app)
 ROWS_PER_PAGE = 5
 
 
-@login_manager.user_loader
-def load_user(id):
-    return UserDB.query.get(int(id))
+@app.route("/token", methods=["POST"])
+def create_token():
+    username = request.json.get("username", None)
+    password = request.json.get("password", None)
+    # Query your database for username and password
+    # user = User.query.filter_by(username=username, password=password).first()
+    # if user is None:
+        # the user was not found on the database
+    #    return jsonify({"msg": "Bad username or password"}), 401
 
+    # create a new token with the user id inside
+    access_token = create_access_token(identity=username)
+    return jsonify({"token": access_token, "user_id": username})
+
+
+@app.route("/protected", methods=["GET"])
+@jwt_required()
+def protected():
+    # Access the identity of the current user with get_jwt_identity
+    current_user_id = get_jwt_identity()
+    print(current_user_id)
+
+    return jsonify({"id": current_user_id, "username": "test"}), 200
 
 @app.route('/')
 def root():
@@ -101,8 +122,8 @@ def root():
 
 @app.route('/packages', methods=['GET'])
 def get_packages():
-    header = request.args.get('offset')
-    print(header)
+    offset = request.args.get('offset')
+    print(offset)
     header = request.headers.get('Content-Type')
     print(header)
 
@@ -113,6 +134,8 @@ def get_packages():
 
     print(args['Version'])
     print(args['Name'])
+
+    #TODO: database fetching
 
     data = '''[{"id": 1,
             "name": "Zaza",

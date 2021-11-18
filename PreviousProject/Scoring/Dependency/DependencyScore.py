@@ -1,7 +1,7 @@
 # NEW
 
-from Scoring.ScoreBaseClass import ScoreBaseClass
-from Scoring.Dependency.Clone import clone_module
+from PreviousProject.Scoring.ScoreBaseClass import ScoreBaseClass
+from PreviousProject.Scoring.Dependency.Clone import clone_module
 
 class DependencyScore(ScoreBaseClass):
     def __init__(self, package):

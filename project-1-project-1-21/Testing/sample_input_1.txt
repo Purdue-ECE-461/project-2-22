@@ -1,6 +1,0 @@
-https://github.com/nullivex/nodist
-https://www.npmjs.com/package/browserify
-https://github.com/cloudinary/cloudinary_npm
-https://github.com/lodash/lodash
-https://www.npmjs.com/package/express
-https://github.com/Project-1-21/GNU-LGPL-Test

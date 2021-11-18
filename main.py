@@ -21,20 +21,6 @@ import os
 data = {
     'Name': 'Alia Ahmed'
 }
-# result = firebase.post('ece-461-project-2-22-default-rtdb/User', data)
-# print(result)
-# result = firebase.get('ece-461-project-2-22-default-rtdb/User', '')
-# print(result)
-# firebase.put('ece-461-project-2-22-default-rtdb/User/-MnxvizzcJgrLFXzUMsE', 'Name', 'rania')
-# firebase.delete('ece-461-project-2-22-default-rtdb/User/', '-MnxvizzcJgrLFXzUMsE''')
-# print("deleted")
-
-# client = storage.Client()
-# bucket = client.get_bucket('staging.ece-461-project-2-22.appspot.com')
-# imageBlob = bucket.blob("/")
-# imagePath = "IMG_3047.JPG"
-# imageBlob = bucket.blob("IMG_3047")
-# imageBlob.upload_from_filename(imagePath)
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = str(os.urandom(48))
@@ -120,7 +106,7 @@ def root():
                            error_message=error_message)
 
 
-@app.route('/packages', methods=['GET'])
+@app.route('/packages', methods=['POST'])
 def get_packages():
     offset = request.args.get('offset')
     print(offset)

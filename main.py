@@ -33,8 +33,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
-db.init_app(app)
-db.create_all(app=app)
+#db.init_app(app)
+#db.create_all(app=app)
 
 ROWS_PER_PAGE = 5
 

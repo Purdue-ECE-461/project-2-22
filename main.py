@@ -76,6 +76,9 @@ def root():
 @app.route('/start', methods=['POST'])
 def start():
     id = request.form['id']
+    name = request.form['name']
+    url = request.form['url']
+    content = request.form['content']
     select = request.form.get('requestType')
     if select == "list":
         if id == "":
@@ -84,7 +87,7 @@ def start():
             return get_package_by_id(id)
         #get packages
     elif select == "upload":
-        return post_package()
+        return post_package(content)
         #upload stuff
     elif select == "update":
         return update_package(id)
@@ -132,18 +135,18 @@ def delete_package_by_id(id):
 
 
 @app.route('/package', methods=['POST'])
-def post_package():
+def post_package(content=None):
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/Users/justinlukowski/Downloads" \
                                             "ece-461-project-2-22-441ab13258f1.json"
 
 
     bucketName = "test_justin_139pm"
-    fileName = "encoded-20211117185003.txt"
+    fileName = content
 
     #print("create")
     #Create.create_bucket(bucketName)
     print("upload")
-    Upload.upload_file(fileName, f"gs://{bucketName}")
+    Upload.upload_file(input, f"gs://{bucketName}")
 
     return render_template('page.html', endpoint='POST: package')
 

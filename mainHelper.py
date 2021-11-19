@@ -18,7 +18,6 @@ from PreviousProject.Scoring.Dependency.DependencyScore import DependencyScore
 from PreviousProject.Interface.Input.InputInterface import InputInterface
 from PreviousProject.Interface.Output.OutputInterface import OutputInterface
 
-#create .txt file from string
 def read(file):
     f = open(file, 'r')
     contents = f.read()

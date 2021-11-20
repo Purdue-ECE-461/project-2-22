@@ -1,6 +1,7 @@
 import os
 from Actions import ActionHelper
 
+
 def download_file(bucket, file_to_download, destination_folder_local):
     if ActionHelper.check_folder_path(destination_folder_local):
         os.system(f"gsutil -m cp -r gs://{bucket}/{file_to_download} {destination_folder_local}")

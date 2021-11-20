@@ -8,7 +8,7 @@ def test_create_bucket(bucket):
 
 
 def test_upload_file(bucket, filename):
-    Upload.upload_file(filename, f"gs://{bucket}")
+    Upload.upload_file(filename, bucket)
     return
 
 

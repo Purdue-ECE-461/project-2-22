@@ -11,3 +11,9 @@ def list_objects_in_bucket(bucket_name):
     client = storage.Client()
     all_blobs = list(client.list_blobs(bucket_name))
     return all_blobs
+
+
+def paginated_list_packages(list_packages):
+    paginated_packages = [list_packages[i:i + 10] for i in range(0, len(list_packages), 10)]
+    return paginated_packages
+

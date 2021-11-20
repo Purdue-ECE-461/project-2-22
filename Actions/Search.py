@@ -20,6 +20,7 @@ def find_bucket(name_searching):
         else:
             if searching_words in bucket.name:
                 return bucket
+    return None
 
 
 def get_words(name_searching):
@@ -52,4 +53,5 @@ def find_object(bucket_name, name_searching):
         else:
             if name_searching in object_searching.name:
                 return object_searching
+    return None
 

@@ -1,5 +1,5 @@
 import datetime
-from Actions import Create, Upload, Download
+from Actions import Create, Upload, Download, List, Update, Search, ResetDefault, Delete
 
 from flask import Flask, render_template, request
 #from firebase import firebase
@@ -109,28 +109,41 @@ def start():
         #error then, dont think this is possible though
     return "this is " + select + " and " + str(id)
 
+
 @app.route('/packages', methods=['GET'])
 def get_packages():
+    # Args Needed: bucket name
+    # returns a list of list of the packages in a single bucket, need to pass argument of bucket name
+    bucket_name = "main_bucket"
+    list_packages = List.list_objects_in_bucket(bucket_name)
+    paginated_packages = List.paginated_list_packages(list_packages)
     return render_template('page.html', endpoint='GET: packages')
 
 
 @app.route('/reset', methods=['DELETE'])
 def delete_all_packages():
+    # Args Needed: main bucket name
+    # Deletes all the objects in all the buckets, deletes the buckets except for the main bucket
+    bucket_name = "main_bucket"
+    ResetDefault.reset_default(bucket_name)
     return render_template('page.html', endpoint='DELETE: reset')
 
 
 @app.route('/package/<id>', methods=['GET'])
 def get_package_by_id(id):
+
     return render_template('page.html', endpoint=('GET: package/' + str(id)))
 
 
 @app.route('/package/<id>', methods=['PUT'])
 def update_package(id):
+
     return render_template('page.html', endpoint=('PUT: package/' + str(id)))
 
 
 @app.route('/package/<id>', methods=['DELETE'])
 def delete_package_by_id(id):
+
     return render_template('page.html', endpoint=('DELETE: package/' + str(id)))
 
 
@@ -138,15 +151,13 @@ def delete_package_by_id(id):
 def post_package(content=None):
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "/Users/justinlukowski/Downloads" \
                                             "ece-461-project-2-22-441ab13258f1.json"
-
-
     bucketName = "test_justin_139pm"
     fileName = content
 
     #print("create")
     #Create.create_bucket(bucketName)
     print("upload")
-    Upload.upload_file(input, f"gs://{bucketName}")
+    Upload.upload_file(input, bucketName)
 
     return render_template('page.html', endpoint='POST: package')
 
@@ -173,12 +184,36 @@ def authenticate():
 
 @app.route('/package/byName/{name}', methods=['GET'])
 def get_package_by_name(name):
+    # Args Needed: bucket name
+    bucket_name = "main_bucket"
+    destination_path = "C:\\Users\\sguad\\A_Desktop\\College\\ECE_461\\Project2\\" \
+                       "proj2_code_github\\project-2-22\\Testing"
+    package_found = Search.find_object(bucket_name, name)
+    if package_found is not None:
+        Download.download_file(bucket_name, package_found.name, destination_path)
     return render_template('page.html', endpoint=('GET: package/byName/' + str(name)))
 
 
 @app.route('/package/byName/{name}', methods=['DELETE'])
 def delete_package_by_name(name):
+    # Args Needed: bucket name
+    bucket_name = "main_bucket"
+    package_found = Search.find_object(bucket_name, name)
+    if package_found is not None:
+        Delete.delete_object(bucket_name, package_found)
     return render_template('page.html', endpoint=('DELETE: package/byName/' + str(name)))
+
+
+@app.route('/package/<id>', methods=['PUT'])
+def update_package_by_name(name):
+    # Args Needed: bucket name
+    bucket_name = "main_bucket"
+    file_to_update_with = "C:\\Users\\sguad\\A_Desktop\\College\\ECE_461\\Project2\\" \
+                          "proj2_code_github\\project-2-22\\Testing\\file.txt"
+    package_found = Search.find_object(bucket_name, name)
+    if package_found is not None:
+        Update.update_file(bucket_name, package_found, file_to_update_with)
+    return render_template('page.html', endpoint=('PUT: package/' + str(id)))
 
 
 if __name__ == '__main__':

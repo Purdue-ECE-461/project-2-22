@@ -17,8 +17,16 @@ def decode_base64(output_zip, string_to_decode):
 
 def string_to_text_file(encoded_text, text_file_folder_path):
     filename = "file_encoded_string.txt"
-    with open(os.path.join(text_file_folder_path, filename), 'wb') as f:
+    file_path = os.path.join(text_file_folder_path, filename)
+    with open(file_path, 'wb') as f:
         f.write(encoded_text)
+    return file_path
+
+
+def text_file_to_string(text_file):
+    with open(text_file, "rb") as f:
+        string_to_zip = f.readlines()[0]
+    return string_to_zip
 
 
 if __name__ == "__main__":
@@ -27,5 +35,10 @@ if __name__ == "__main__":
     folder_dest_text = "C:\\Users\\sguad\\A_Desktop\\College\\VIP\\Datasets\\Fiducial"
 
     encoded_string = encode_zip(file_to_encode)
-    string_to_text_file(encoded_string, folder_dest_text)
-    decode_base64(file_to_decode, encoded_string)
+    file_text = string_to_text_file(encoded_string, folder_dest_text)
+    string_encoded_from_text = text_file_to_string(file_text)
+    if string_encoded_from_text == encoded_string:
+        print("Great")
+    else:
+        print("Not Great")
+    decode_base64(file_to_decode, string_encoded_from_text)

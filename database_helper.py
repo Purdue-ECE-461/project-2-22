@@ -66,12 +66,22 @@ def get_package_by_id(id):
     con = sqlite3.connect("database.db")
 
     cur = con.cursor()
-    res = cur.execute("select Name,Version,Filename from packages WHERE ID=" + str(id))
+    res = cur.execute("select Name,Version,Filename,URL from packages WHERE ID=" + str(id))
 
+    variables = []
     for row in res:
         print(row)
+        variables.append(row)
+
+    data = {
+        "Name": variables[0],
+        "Version": variables[1],
+        "Filename": variables[2],
+        "URL": variables[3]
+    }
 
     con.close()
+    return data
 
 
 def get_package_by_name(name):

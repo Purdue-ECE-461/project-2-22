@@ -13,6 +13,7 @@ from flask_login import login_user, logout_user, current_user, login_required, L
 from werkzeug.utils import redirect
 
 import database_helper
+import mainHelper
 from flask_restful import Api, Resource, reqparse, abort
 import os
 
@@ -292,7 +293,7 @@ def post_package():
 
 @app.route('/package/<id>/rate', methods=['GET'])
 def rate_package_by_id(id):
-    print(id)
+    #print(id)
     #if successful rating
     data = {
           "BusFactor": 0,
@@ -302,9 +303,21 @@ def rate_package_by_id(id):
           "LicenseScore": 0,
           "GoodPinningPractice": 0
         }
+
+    #get package variables
+    variables = database_helper.get_package_by_id(id)
+    if variables['URL'] == "": #no URL, get from package.json
+        # TODO: file = decode(variables['Filename'] ---> Santiago's code
+        jsonFile = mainHelper.getPackageJson("output_file.zip") # TODO: change input to file
+        if jsonFile != None:
+            url = mainHelper.getURL(jsonFile)
+            data = mainHelper.rate(url)
+    else: #use URL
+        data = mainHelper.rate(variables['URL'])
+
     r = make_response(data)
     r.mimetype = 'application/json'
-    # return 400 for no such package; return 500 for failure in rating
+    # TODO: return 400 for no such package; return 500 for failure in rating
     return r
 
     # return render_template('page.html', endpoint=('GET: package/' + str(id)) + '/rate')

@@ -6,7 +6,7 @@
 # Written by Jason Lei
 # September 28, 2021
 
-from Scoring.ScoreBaseClass import ScoreBaseClass
+from PreviousProject.Scoring.ScoreBaseClass import ScoreBaseClass
 from git import Repo
 import os
 import shutil

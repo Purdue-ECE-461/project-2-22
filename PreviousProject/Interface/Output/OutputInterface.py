@@ -4,8 +4,8 @@
 # Created by Jason Lei
 # September 23, 2021
 
-from Interface.Interface import Interface
-from DEBUG import DEBUG
+from PreviousProject.Interface.Interface import Interface
+from PreviousProject.DEBUG import DEBUG
 
 # The OutputInterface organizes the system output based on what mode is
 # being run and the information provided to it.

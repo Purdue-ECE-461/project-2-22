@@ -1,5 +1,6 @@
 import sqlite3
 import semver
+import json
 
 
 def version_check(package_list, version_range):
@@ -9,6 +10,9 @@ def version_check(package_list, version_range):
     res = semver.compare(test_range, version)
     res = semver.match(version, '>3.0.0')
     res = semver.max_ver(test_range, '1.3.4')'''
+
+    if '<' and '>' and '!' not in version_range:
+        version_range = '==' + version_range
 
     good_packages = []
     for package in package_list:
@@ -40,6 +44,7 @@ def post_package(name, version, p_id, url, filename):
 def get_packages(data_dict, offset):
     with sqlite3.connect("database.db") as con:
         cur = con.cursor()
+        valid_packages = []
         for d in data_dict:
             res = cur.execute("SELECT Name,Version,ID from packages WHERE Name='" + str(d['Name']) + "'")
 
@@ -47,7 +52,12 @@ def get_packages(data_dict, offset):
             for row in res:
                 packages.append(row)
 
-            print(version_check(packages, d['Version']))
+            for package in (version_check(packages, d['Version'])):
+                j_pack = {'Name': package[0], 'Version': package[1], 'ID': package[2]}
+                if j_pack not in valid_packages:
+                    valid_packages.append(j_pack)
+
+    return json.dumps(valid_packages)
 
 
 def get_all_packages():
@@ -112,7 +122,7 @@ def delete_package_by_id(p_id):
 
 
 if __name__ == '__main__':
-    print(semver.SEMVER_SPEC_VERSION)
+    # print(semver.SEMVER_SPEC_VERSION)
 
     '''import requests
 
@@ -126,3 +136,14 @@ if __name__ == '__main__':
     response = requests.request("POST", url, headers=headers, data=payload)
 
     print(response.text)'''
+
+    print(semver.cmp('>=2.0.0', '2.0.0'))
+
+    version_range = '2.0.0'
+
+    if '<' and '>' and '!' not in version_range:
+        version_range = '==' + version_range
+
+    print(version_range)
+
+    print(semver.match('2.0.0', '==1.2.3-2.1.0'))

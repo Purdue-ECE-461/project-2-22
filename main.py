@@ -164,19 +164,12 @@ def get_packages():
     #print(args['Version'])
     #print(args['Name'])
 
-    database_helper.get_packages(data_list_dict, offset)
+    #returns list of dictionaries
+    packages = database_helper.get_packages(data_list_dict, offset)
 
     #TODO: database fetching
 
-    data = '''[{"id": 1,
-            "name": "Zaza",
-            "tag": "cat"},
-            {"id": 1,
-             "name": "Zaza",
-             "tag": "cat"}
-            ]'''
-
-    resp = Response(response=data,
+    resp = Response(response=packages,
                     status=200,
                     mimetype="application/json")
 
@@ -189,7 +182,18 @@ def get_packages():
 def delete_all_packages():
     # return 200 registry is reset
     # return 401 no permissions to reset the registry
-    return render_template('page.html', endpoint='DELETE: reset')
+
+    permission = True
+
+    if permission:
+        database_helper.delete_all_packages()
+        status_code = 200
+    else:
+        status_code = 401
+
+    resp = Response(status=status_code)
+
+    return resp
 
 
 @app.route('/package/<id>', methods=['GET'])

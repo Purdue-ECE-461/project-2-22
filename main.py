@@ -225,9 +225,12 @@ def update_package(id):
     # the package contents will replace the previous contents
     print(id)
 
+    print(request.data)
+
     root_parser = reqparse.RequestParser()
     root_parser.add_argument('metadata', type=dict)
     root_parser.add_argument('data', type=dict)
+
 
     message_parser = reqparse.RequestParser()
     message_parser.add_argument('Name', type=str, location=('metadata',), required=True)
@@ -238,16 +241,31 @@ def update_package(id):
     message_parser.add_argument('URL', type=str, location=('data',), required=False)
     message_parser.add_argument('JSProgram', type=str, location=('data',), required=False)
 
+
     root_args = root_parser.parse_args()
-    args = message_parser.parse_args(req=root_args)
-    print(args['Name'])
-    print(args['Version'])
-    print(args['ID'])
+    print(root_args)
+
+    d = (str(request.data.decode('utf-8')))
+    print(d)
+    data_list_dict = json.loads(d)
+    print(data_list_dict)
+
+    #args = message_parser.parse_args(req=root_args)
+    name = (data_list_dict['metadata']['Name'])
+    version = (data_list_dict['metadata']['Version'])
+    p_id = (data_list_dict['metadata']['ID'])
+    url = (data_list_dict['data']['URL'])
+
+    if database_helper.get_package_by_id(p_id) is not None:
+        database_helper.update_package(name, version, p_id, url, filename="")
+        status_code = 200
+    else:
+        status_code = 400
 
     # response 200 for success
     # response 400 for a malformed request: no such package
 
-    return render_template('page.html', endpoint=('PUT: package/' + str(id)))
+    return Response(status=status_code)
 
 
 @app.route('/package/<id>', methods=['DELETE'])

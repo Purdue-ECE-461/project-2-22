@@ -63,7 +63,7 @@ def get_packages(data_dict, offset):
 def get_all_packages():
     with sqlite3.connect("database.db") as con:
         cur = con.cursor()
-        res = cur.execute("SELECT Name,Version,ID from packages")
+        res = cur.execute("SELECT Name,Version,ID,URL,Filename from packages")
 
         packages = []
         for row in res:
@@ -78,10 +78,13 @@ def get_package_by_id(id):
     cur = con.cursor()
     res = cur.execute("select Name,Version,Filename from packages WHERE ID=" + str(id))
 
+    ret_val = ""
     for row in res:
-        print(row)
+        ret_val = row
 
     con.close()
+
+    return ret_val
 
 
 def get_package_by_name(name):
@@ -124,18 +127,18 @@ def delete_package_by_id(p_id):
 if __name__ == '__main__':
     # print(semver.SEMVER_SPEC_VERSION)
 
-    '''import requests
+    import requests
 
-    url = "http://127.0.0.1:8080/packages?offset=10"
+    url = "http://127.0.0.1:8080/package/2"
 
-    payload = "[\n  {\n    \"Version\": \"<=1.0.0\",\n    \"Name\": \"test2\"\n  },\n  {\n    \"Version\": \"<=1.3.0\",\n    \"Name\": \"test2\"\n  }\n]"
+    payload = "{\n    \"metadata\": {\n        \"Name\": \"test2\",\n        \"Version\": \"1.3.0\",\n        \"ID\": \"2\"\n    },\n    \"data\": {\n        \"Content\": \"hi\",\n        \"URL\": \"https://github.com/jashkenas/underscore\",\n        \"JSProgram\": \"if (process.argv.length === 7) {\\nconsole.log('Success')\\nprocess.exit(0)\\n} else {\\nconsole.log('Failed')\\nprocess.exit(1)\\n}\\n\"\n    }\n}"
     headers = {
         'X-Authorization': 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload)
+    response = requests.request("PUT", url, headers=headers, data=payload)
 
-    print(response.text)'''
+    print(response.text)
 
     print(semver.cmp('>=2.0.0', '2.0.0'))
 
@@ -147,3 +150,6 @@ if __name__ == '__main__':
     print(version_range)
 
     print(semver.match('2.0.0', '==1.2.3-2.1.0'))
+
+    get_all_packages()
+

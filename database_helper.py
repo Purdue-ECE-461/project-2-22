@@ -76,15 +76,25 @@ def get_package_by_id(id):
     con = sqlite3.connect("database.db")
 
     cur = con.cursor()
-    res = cur.execute("select Name,Version,Filename from packages WHERE ID=" + str(id))
+    res = cur.execute("select Name,Version,Filename,URL from packages WHERE ID=" + str(id))
 
-    ret_val = None
+    variables = []
     for row in res:
-        ret_val = row
+        print(row)
+        variables.append(row)
+
+    if len(variables) > 0:
+        data = {
+            "Name": variables[0],
+            "Version": variables[1],
+            "Filename": variables[2],
+            "URL": variables[3]
+        }
+    else:
+        data = None
 
     con.close()
-
-    return ret_val
+    return data
 
 
 def get_package_by_name(name):
@@ -131,7 +141,7 @@ if __name__ == '__main__':
 
     url = "http://127.0.0.1:8080/package"
 
-    payload = "{\n    \"metadata\": {\n        \"Name\": \"test2\",\n        \"Version\": \"1.3.0\",\n        \"ID\": \"7\"\n    },\n    \"data\": {\n        \"Content\": \"hi\",\n        \"URL\": \"https://github.com/jashkenas/underscore\",\n        \"JSProgram\": \"if (process.argv.length === 7) {\\nconsole.log('Success')\\nprocess.exit(0)\\n} else {\\nconsole.log('Failed')\\nprocess.exit(1)\\n}\\n\"\n    }\n}"
+    payload = "{\n    \"metadata\": {\n        \"Name\": \"test2\",\n        \"Version\": \"1.3.0\",\n        \"ID\": \"8\"\n    },\n    \"data\": {\n        \"Content\": \"hi\",\n        \"URL\": \"https://github.com/jashkenas/underscore\",\n        \"JSProgram\": \"if (process.argv.length === 7) {\\nconsole.log('Success')\\nprocess.exit(0)\\n} else {\\nconsole.log('Failed')\\nprocess.exit(1)\\n}\\n\"\n    }\n}"
     headers = {
         'X-Authorization': 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
     }

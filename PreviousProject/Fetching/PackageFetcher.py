@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from validators import url as is_valid_url
 
-from Models.Package import Package
+from PreviousProject.Models.Package import Package
 
 
 class PackageFetcher:

@@ -7,7 +7,7 @@
 import sys
 from os import path
 
-from Interface.Interface import Interface
+from PreviousProject.Interface.Interface import Interface
 
 INSTALL_COMMAND = "install"
 TEST_COMMAND = "test"

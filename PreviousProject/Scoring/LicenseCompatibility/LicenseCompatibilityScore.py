@@ -6,7 +6,7 @@
 # Edited by Jason Lei
 # October 3, 2021
 
-from Scoring.ScoreBaseClass import ScoreBaseClass
+from PreviousProject.Scoring.ScoreBaseClass import ScoreBaseClass
 
 
 class LicenseCompatibilityScore(ScoreBaseClass):

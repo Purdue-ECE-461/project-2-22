@@ -4,7 +4,7 @@
 # Created by Charles Pisciotta
 # September 15, 2021
 
-from Scoring.ScoreBaseClass import ScoreBaseClass
+from PreviousProject.Scoring.ScoreBaseClass import ScoreBaseClass
 
 
 # Correctness = Number of Stars * Number of Closed Issues * (Number of

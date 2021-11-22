@@ -307,8 +307,8 @@ def rate_package_by_id(id):
     #get package variables
     variables = database_helper.get_package_by_id(id)
     if variables['URL'] == "": #no URL, get from package.json
-        # file = decode(variables['Filename'] ---> Santiago's code
-        jsonFile = mainHelper.getPackageJson("output_file.zip")
+        # TODO: file = decode(variables['Filename'] ---> Santiago's code
+        jsonFile = mainHelper.getPackageJson("output_file.zip") # TODO: change input to file
         if jsonFile != None:
             url = mainHelper.getURL(jsonFile)
             data = mainHelper.rate(url)

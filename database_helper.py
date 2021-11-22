@@ -42,6 +42,9 @@ def post_package(name, version, p_id, url, filename):
 
 
 def get_packages(data_dict, offset):
+    if offset is None:
+        offset = 1
+
     with sqlite3.connect("database.db") as con:
         cur = con.cursor()
         valid_packages = []
@@ -56,6 +59,9 @@ def get_packages(data_dict, offset):
                 j_pack = {'Name': package[0], 'Version': package[1], 'ID': package[2]}
                 if j_pack not in valid_packages:
                     valid_packages.append(j_pack)
+
+    if len(valid_packages) > 10:
+        valid_packages = valid_packages[(offset - 1) * 10: (offset * 10 if len(p) >= offset * 10 else len(p))]
 
     return json.dumps(valid_packages)
 
@@ -137,7 +143,7 @@ def delete_package_by_id(p_id):
 if __name__ == '__main__':
     # print(semver.SEMVER_SPEC_VERSION)
 
-    import requests
+    '''import requests
 
     url = "http://127.0.0.1:8080/package"
 
@@ -161,5 +167,12 @@ if __name__ == '__main__':
 
     print(semver.match('2.0.0', '==1.2.3-2.1.0'))
 
-    get_all_packages()
+    get_all_packages()'''
+
+    '''offset = 2
+    p = [1, 1, 3, 3, 4, 5, 3, 2, 7, 2, 4, 2, 4, 5, 3, 2, 2, 3, 4, 5, 2, 4, 2, 5, 2]
+    if len(p) > 10:
+        valid_packages = p[(offset - 1) * 10: (offset * 10 if len(p) >= offset * 10 else len(p))]
+
+    print(valid_packages)'''
 

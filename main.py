@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from flask import Flask, render_template, request, url_for, make_response, Response, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
@@ -11,7 +12,7 @@ import google.oauth2.id_token
 from flask_login import login_user, logout_user, current_user, login_required, LoginManager
 from werkzeug.utils import redirect
 
-from database_helper import *
+import database_helper
 from flask_restful import Api, Resource, reqparse, abort
 import os
 
@@ -145,13 +146,25 @@ def get_packages():
     header = request.headers.get('Content-Type')
     print(header)
 
-    message_parser = reqparse.RequestParser()
-    message_parser.add_argument('Version', type=str)
-    message_parser.add_argument('Name', type=str)
-    args = message_parser.parse_args()
+    d = (str(request.data.decode('utf-8')))
+    print(d)
+    data_list_dict = json.loads(d)
+    print(data_list_dict)
 
-    print(args['Version'])
-    print(args['Name'])
+    #print(da[1])
+    #print(da[1]['Version'])
+
+    #will pass in a list of dictionaries to get_packages
+
+    #message_parser = reqparse.RequestParser()
+    #message_parser.add_argument('Version', type=str)
+    #message_parser.add_argument('Name', type=str)
+    #args = message_parser.parse_args()
+
+    #print(args['Version'])
+    #print(args['Name'])
+
+    database_helper.get_packages(data_list_dict, offset)
 
     #TODO: database fetching
 

@@ -281,33 +281,32 @@ def post_package():
     header = request.headers.get('X-Authorization')
     print(header)
 
-    root_parser = reqparse.RequestParser()
-    root_parser.add_argument('metadata', type=dict)
-    root_parser.add_argument('data', type=dict)
+    d = (str(request.data.decode('utf-8')))
+    print(d)
+    data_list_dict = json.loads(d)
+    print(data_list_dict)
 
-    message_parser = reqparse.RequestParser()
-    message_parser.add_argument('Name', type=str, location=('metadata',), required=True)
-    message_parser.add_argument('Version', type=str, location=('metadata',), required=True)
-    message_parser.add_argument('ID', type=str, location=('metadata',), required=True)
-
-    message_parser.add_argument('Content', type=str, location=('data',), required=False)
-    message_parser.add_argument('URL', type=str, location=('data',), required=False)
-    message_parser.add_argument('JSProgram', type=str, location=('data',), required=False)
-
-    root_args = root_parser.parse_args()
-    args = message_parser.parse_args(req=root_args)
-    print(args['Name'])
-    print(args['Version'])
-    print(args['ID'])
+    # args = message_parser.parse_args(req=root_args)
+    name = (data_list_dict['metadata']['Name'])
+    version = (data_list_dict['metadata']['Version'])
+    p_id = (data_list_dict['metadata']['ID'])
+    url = (data_list_dict['data']['URL'])
 
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)
 
+    if database_helper.get_package_by_id(p_id) is None:
+        database_helper.post_package(name, version, p_id, url, filename="")
+        status_code = 201
+    else:
+        status_code = 403
+
     # if malformed request
 
-    data = {"Name": "string", "Version": "1.2.3", "ID": "test"}
+    data = {"Name": name, "Version": version, "ID": p_id}
     r = make_response(data)
     r.mimetype = 'application/json'
+    r.status_code = status_code
     return r
     # response = Response(response=data, status=201, mimetype='application/json')
 

@@ -78,7 +78,7 @@ def get_package_by_id(id):
     cur = con.cursor()
     res = cur.execute("select Name,Version,Filename from packages WHERE ID=" + str(id))
 
-    ret_val = ""
+    ret_val = None
     for row in res:
         ret_val = row
 
@@ -129,14 +129,14 @@ if __name__ == '__main__':
 
     import requests
 
-    url = "http://127.0.0.1:8080/package/2"
+    url = "http://127.0.0.1:8080/package"
 
-    payload = "{\n    \"metadata\": {\n        \"Name\": \"test2\",\n        \"Version\": \"1.3.0\",\n        \"ID\": \"2\"\n    },\n    \"data\": {\n        \"Content\": \"hi\",\n        \"URL\": \"https://github.com/jashkenas/underscore\",\n        \"JSProgram\": \"if (process.argv.length === 7) {\\nconsole.log('Success')\\nprocess.exit(0)\\n} else {\\nconsole.log('Failed')\\nprocess.exit(1)\\n}\\n\"\n    }\n}"
+    payload = "{\n    \"metadata\": {\n        \"Name\": \"test2\",\n        \"Version\": \"1.3.0\",\n        \"ID\": \"7\"\n    },\n    \"data\": {\n        \"Content\": \"hi\",\n        \"URL\": \"https://github.com/jashkenas/underscore\",\n        \"JSProgram\": \"if (process.argv.length === 7) {\\nconsole.log('Success')\\nprocess.exit(0)\\n} else {\\nconsole.log('Failed')\\nprocess.exit(1)\\n}\\n\"\n    }\n}"
     headers = {
         'X-Authorization': 'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
     }
 
-    response = requests.request("PUT", url, headers=headers, data=payload)
+    response = requests.request("POST", url, headers=headers, data=payload)
 
     print(response.text)
 

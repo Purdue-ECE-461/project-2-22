@@ -298,7 +298,7 @@ def post_package():
     # status_code = flask.Response(status=201)
 
     current_path = os.getcwd()
-    encoded_text_file = (data_list_dict['data']['content'])
+    encoded_text_file = (data_list_dict['data']['Content'])
     complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file, text_file_folder_path=current_path)
 
     if database_helper.get_package_by_id(p_id) is None:

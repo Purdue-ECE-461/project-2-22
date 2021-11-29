@@ -71,16 +71,16 @@ def protected():
 def root():
     if os.environ.get('GAE_ENV') == 'standard':
         # If deployed, use the local socket interface for accessing Cloud SQL
-        unix_socket = '/cloudsql/{}'.format(db_connection_name)
-        cnx = pymysql.connect(user=db_user, password=db_password,
-                              unix_socket=unix_socket, db=db_name)
+        unix_socket = '/cloudsql/{}'.format(database_helper.db_connection_name)
+        cnx = pymysql.connect(user=database_helper.db_user, password=database_helper.db_password,
+                              unix_socket=unix_socket, db=database_helper.db_name)
     else:
         # If running locally, use the TCP connections instead
         # Set up Cloud SQL Proxy (cloud.google.com/sql/docs/mysql/sql-proxy)
         # so that your application can use 127.0.0.1:3306 to connect to your
         # Cloud SQL instance
         host = '127.0.0.1'
-        print(db_user)
+        print(database_helper.db_user)
         cnx = pymysql.connect(user='proj-2-database-mysql', password='test1234',
                               host=host, db='demo')
 
@@ -188,16 +188,20 @@ def delete_all_packages():
 @app.route('/package/<id>', methods=['GET'])
 def get_package_by_id(id):
     print(id)
+
+    #returns in the format Name Version Filename Url Content
+    ret_data = database_helper.get_package_by_id(id)
+
     data = {
         "metadata": {
-            "Name": "string",
-            "Version": "1.2.3",
-            "ID": "string"
+            "Name": ret_data['Name'],
+            "Version": ret_data['Version'],
+            "ID": str(id)
         },
         "data": {
-            "Content": "string",
-            "URL": "string",
-            "JSProgram": "string"
+            "Content": ret_data['Content'],
+            "URL": ret_data['URL'],
+            "JSProgram": "None"
         }
     }
 
@@ -288,11 +292,13 @@ def post_package():
     encoded_text_file = (data_list_dict['data']['Content'])
     complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file, text_file_folder_path=current_path)
 
+    conn = database_helper.mysql_connect()
     if database_helper.get_package_by_id(p_id) is None:
-        database_helper.post_package(name, version, p_id, url, filename=complete_zip_file_path)
+        database_helper.post_package(name, version, p_id, url, complete_zip_file_path)
         status_code = 201
     else:
         status_code = 403
+    database_helper.mysql_close(conn)
 
     # if malformed request
 

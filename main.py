@@ -17,6 +17,7 @@ import mainHelper
 from flask_restful import Api, Resource, reqparse, abort
 import os
 import pymysql
+from Actions import Decode
 
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ece-461-project-2-22-44eb5eb60671.json"
 
@@ -280,14 +281,15 @@ def post_package():
     p_id = (data_list_dict['metadata']['ID'])
     url = (data_list_dict['data']['URL'])
 
-    #TODO: upload context to GCP
-    #take content string; write to text file, upload text file to GCP, delete text file, upload name of file to GCP
-
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)
 
+    current_path = os.getcwd()
+    encoded_text_file = (data_list_dict['data']['Content'])
+    complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file, text_file_folder_path=current_path)
+
     if database_helper.get_package_by_id(p_id) is None:
-        database_helper.post_package(name, version, p_id, url, filename="")
+        database_helper.post_package(name, version, p_id, url, filename=complete_zip_file_path)
         status_code = 201
     else:
         status_code = 403
@@ -319,6 +321,7 @@ def rate_package_by_id(id):
     variables = database_helper.get_package_by_id(id)
     if variables['URL'] == "": #no URL, get from package.json
         # TODO: file = decode(variables['Filename'] ---> Santiago's code
+        # It should be something like
         jsonFile = mainHelper.getPackageJson("output_file.zip") # TODO: change input to file
         if jsonFile != None:
             url = mainHelper.getURL(jsonFile)

@@ -16,6 +16,7 @@ import database_helper
 import mainHelper
 from flask_restful import Api, Resource, reqparse, abort
 import os
+import pymysql
 
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ece-461-project-2-22-44eb5eb60671.json"
 
@@ -67,45 +68,31 @@ def protected():
 
 @app.route('/')
 def root():
-    # For the sake of example, use static information to inflate the template.
-    # This will be replaced with real information in later steps.
-    #if current_user.is_authenticated:
-    #    print("Current user is authenticated")
-    #else:
-    #    print("Current user is not authenticated")
+    if os.environ.get('GAE_ENV') == 'standard':
+        # If deployed, use the local socket interface for accessing Cloud SQL
+        unix_socket = '/cloudsql/{}'.format(db_connection_name)
+        cnx = pymysql.connect(user=db_user, password=db_password,
+                              unix_socket=unix_socket, db=db_name)
+    else:
+        # If running locally, use the TCP connections instead
+        # Set up Cloud SQL Proxy (cloud.google.com/sql/docs/mysql/sql-proxy)
+        # so that your application can use 127.0.0.1:3306 to connect to your
+        # Cloud SQL instance
+        host = '127.0.0.1'
+        print(db_user)
+        cnx = pymysql.connect(user='proj-2-database-mysql', password='test1234',
+                              host=host, db='demo')
 
-    dummy_times = [datetime.datetime(2018, 1, 1, 10, 0, 0),
-                   datetime.datetime(2018, 1, 2, 10, 30, 0),
-                   datetime.datetime(2018, 1, 3, 11, 0, 0),
-                   ]
+    with cnx.cursor() as cursor:
+        cursor.execute('SELECT demo_txt from demo_tbl;')
+        result = cursor.fetchall()
+        current_msg = result[0][0]
+    cnx.close()
 
-    # Verify Firebase auth.
-    id_token = request.cookies.get("token")
-    error_message = None
-    claims = None
+    print(str(current_msg))
 
-    if id_token:
-        try:
-            # Verify the token against the Firebase Auth API. This example
-            # verifies the token on each page load. For improved performance,
-            # some applications may wish to cache results in an encrypted
-            # session store (see for instance
-            # http://flask.pocoo.org/docs/1.0/quickstart/#sessions).
-            claims = google.oauth2.id_token.verify_firebase_token(
-                id_token, firebase_request_adapter)
-        except ValueError as exc:
-            # This will be raised if the token is expired or any other
-            # verification checks fail.
-            error_message = str(exc)
-
-        # Record and fetch the recent times a logged-in user has accessed
-        # the site. This is currently shared amongst all users, but will be
-        # individualized in a following step.
-
-    print(claims)
-
-    return render_template('index.html', times=dummy_times, endpoint='root', user_data=claims,
-                           error_message=error_message)
+    return render_template('index.html', times='1.0.0', endpoint=current_msg, user_data='1.0.0',
+                           error_message='current_msg')
 
 @app.route('/start', methods=['POST'])
 def start():
@@ -292,6 +279,9 @@ def post_package():
     version = (data_list_dict['metadata']['Version'])
     p_id = (data_list_dict['metadata']['ID'])
     url = (data_list_dict['data']['URL'])
+
+    #TODO: upload context to GCP
+    #take content string; write to text file, upload text file to GCP, delete text file, upload name of file to GCP
 
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)

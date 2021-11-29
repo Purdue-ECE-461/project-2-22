@@ -1,4 +1,5 @@
 aniso8601==9.0.1
+asgiref==3.4.1
 attrs==21.2.0
 cachetools==4.2.4
 certifi==2021.10.8
@@ -9,6 +10,7 @@ crypto==1.4.1
 cryptography==35.0.0
 cycler==0.10.0
 Deprecated==1.2.13
+Django==3.2.9
 firebase==3.0.1
 Flask==2.0.1
 Flask-JWT-Extended==4.3.1
@@ -50,12 +52,14 @@ Pillow==8.3.2
 pluggy==1.0.0
 proto-plus==1.19.7
 protobuf==3.19.1
+psutil==5.8.0
 py==1.11.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.21
 pycryptodome==3.11.0
 PyJWT>2.0.0,<=3.0.0
+PyMySQL==1.0.2
 pyparsing==2.4.7
 pytest==6.2.5
 python-dateutil==2.8.2
@@ -70,6 +74,7 @@ shellescape==3.8.1
 six==1.16.0
 smmap==5.0.0
 SQLAlchemy==1.4.27
+sqlparse==0.4.2
 sseclient==0.0.27
 toml==0.10.2
 typing-extensions==3.10.0.2

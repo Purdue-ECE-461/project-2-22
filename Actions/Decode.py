@@ -20,7 +20,7 @@ def string_to_text_file(encoded_text, text_file_folder_path):
     file_path = os.path.join(text_file_folder_path, filename)
     with open(file_path, 'w') as f:
         f.write(encoded_text)
-    return file_path
+    return file_path, filename
 
 
 def text_file_to_string(text_file):

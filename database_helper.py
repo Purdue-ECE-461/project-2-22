@@ -1,6 +1,42 @@
 import sqlite3
 import semver
 import json
+import os
+import pymysql
+
+from Actions import Decode
+
+db_user = os.environ.get('CLOUD_SQL_USERNAME')
+db_password = os.environ.get('CLOUD_SQL_PASSWORD')
+db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME')
+db_connection_name = os.environ.get('CLOUD_SQL_CONNECTION_NAME')
+
+
+def mysql_close(cnx):
+    cnx.close()
+
+
+def mysql_connect():
+    if os.environ.get('GAE_ENV') == 'standard':
+        # If deployed, use the local socket interface for accessing Cloud SQL
+        unix_socket = '/cloudsql/{}'.format(db_connection_name)
+        cnx = pymysql.connect(user=db_user, password=db_password,
+                              unix_socket=unix_socket, db=db_name)
+    else:
+        # If running locally, use the TCP connections instead
+        # Set up Cloud SQL Proxy (cloud.google.com/sql/docs/mysql/sql-proxy)
+        # so that your application can use 127.0.0.1:3306 to connect to your
+        # Cloud SQL instance
+        host = '127.0.0.1'
+        cnx = pymysql.connect(user='proj-2-database-mysql', password='test1234',
+                              host=host, db='demo')
+
+    '''with cnx.cursor() as cursor:
+        cursor.execute('SELECT demo_txt from demo_tbl;')
+        result = cursor.fetchall()
+        current_msg = result[0][0]'''
+
+    return cnx
 
 
 def version_check(package_list, version_range):
@@ -23,124 +59,132 @@ def version_check(package_list, version_range):
 
 
 def initialize_db():
-    conn = sqlite3.connect('database.db')
-    print("Opened database successfully")
-
-    conn.execute('CREATE TABLE packages (Name TEXT, Version TEXT, ID TEXT NOT NULL PRIMARY KEY, URL TEXT, Filename '
-                 'TEXT)')
+    conn = mysql_connect()
+    conn.execute('CREATE TABLE packages (internal_id INT NOT NULL AUTO_INCREMENT, Name TEXT, Version TEXT, ID TEXT NOT '
+                 'NULL, URL TEXT, Filename '
+                 'TEXT, PRIMARY KEY (internal_id))')
     print("Table created successfully")
-    conn.close()
+    mysql_close(conn)
 
 
 def post_package(name, version, p_id, url, filename):
-    with sqlite3.connect("database.db") as con:
-        cur = con.cursor()
-        cur.execute("INSERT INTO packages (Name,Version,ID,URL,Filename) \
-        VALUES(?, ?, ?, ?, ?)", (name, version, p_id, url, filename))
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("INSERT INTO packages (Name,Version,ID,URL,Filename) \
+        VALUES(%s, %s, %s, %s, %s)", (name, version, p_id, url, filename,))
 
-        con.commit()
+    con.commit()
+    mysql_close(con)
 
 
 def get_packages(data_dict, offset):
+    con = mysql_connect()
+
     if offset is None:
         offset = 1
 
-    with sqlite3.connect("database.db") as con:
-        cur = con.cursor()
-        valid_packages = []
-        for d in data_dict:
-            res = cur.execute("SELECT Name,Version,ID from packages WHERE Name='" + str(d['Name']) + "'")
+    cur = con.cursor()
+    valid_packages = []
+    for d in data_dict:
+        cur.execute("SELECT Name,Version,ID from packages WHERE Name=%s", (d['Name'],))
 
-            packages = []
-            for row in res:
-                packages.append(row)
+        packages = []
+        for row in cur.fetchall():
+            packages.append(row)
 
-            for package in (version_check(packages, d['Version'])):
-                j_pack = {'Name': package[0], 'Version': package[1], 'ID': package[2]}
-                if j_pack not in valid_packages:
-                    valid_packages.append(j_pack)
+        for package in (version_check(packages, d['Version'])):
+            j_pack = {'Name': package[0], 'Version': package[1], 'ID': package[2]}
+            if j_pack not in valid_packages:
+                valid_packages.append(j_pack)
 
     if len(valid_packages) > 10:
-        valid_packages = valid_packages[(offset - 1) * 10: (offset * 10 if len(p) >= offset * 10 else len(p))]
+        valid_packages = valid_packages[(offset - 1) * 10: (
+            offset * 10 if len(valid_packages) >= offset * 10 else len(valid_packages))]
+
+    mysql_close(con)
 
     return json.dumps(valid_packages)
 
 
 def get_all_packages():
-    with sqlite3.connect("database.db") as con:
-        cur = con.cursor()
-        res = cur.execute("SELECT Name,Version,ID,URL,Filename from packages")
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT Name,Version,ID,URL,Filename from packages")
 
-        packages = []
-        for row in res:
-            packages.append(row)
+    packages = []
+    for row in cur.fetchall():
+        packages.append(row)
 
-        print(packages)
+    print(packages)
+    mysql_close(con)
+    return packages
 
 
 def get_package_by_id(id):
-    con = sqlite3.connect("database.db")
-
+    con = mysql_connect()
     cur = con.cursor()
-    res = cur.execute("select Name,Version,Filename,URL from packages WHERE ID=" + str(id))
+    cur.execute("select Name,Version,Filename,URL from packages WHERE ID=%s", (str(id),))
+    mysql_close(con)
 
     variables = []
-    for row in res:
-        print(row)
+    for row in cur.fetchall():
         variables.append(row)
+
+    print(len(variables))
 
     if len(variables) > 0:
         data = {
-            "Name": variables[0],
-            "Version": variables[1],
-            "Filename": variables[2],
-            "URL": variables[3]
+            "Name": variables[0][0],
+            "Version": variables[0][1],
+            "Filename": variables[0][2],
+            "URL": variables[0][3],
+            "Content": variables[0][2]  # needs to be decoded
         }
     else:
         data = None
 
-    con.close()
     return data
 
 
 def get_package_by_name(name):
-    con = sqlite3.connect("database.db")
-
+    con = mysql_connect()
     cur = con.cursor()
-    res = cur.execute("select Name,Version,Filename from packages WHERE Name=?", (name,))
+    cur.execute("select Name,Version,Filename from packages WHERE Name=%s", (name,))
+    mysql_close(con)
 
-    for row in res:
+    for row in cur.fetchall():
         print(row)
-
-    con.close()
 
 
 def update_package(name, version, p_id, url, filename):
-    with sqlite3.connect("database.db") as con:
-        cur = con.cursor()
-        cur.execute("UPDATE packages SET URL = ?, Filename = ? \
-        WHERE Name = ? AND Version = ? and ID = ?", (url, filename, name, version, p_id))
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("UPDATE packages SET URL = %s, Filename = %s \
+        WHERE Name = %s AND Version = %s and ID = %s", (url, filename, name, version, p_id,))
 
-        con.commit()
+    con.commit()
+    mysql_close(con)
 
 
 def delete_all_packages():
-    con = sqlite3.connect("database.db")
+    con = mysql_connect()
     cur = con.cursor()
     cur.execute("DELETE from packages")
     con.commit()
-    con.close()
+    mysql_close(con)
 
 
 def delete_package_by_id(p_id):
-    con = sqlite3.connect("database.db")
+    con = mysql_connect()
     cur = con.cursor()
-    cur.execute("DELETE from packages where ID=?", str(p_id))
+    cur.execute("DELETE from packages where ID=%s", str(p_id))
     con.commit()
-    con.close()
+    mysql_close(con)
 
 
 if __name__ == '__main__':
+    delete_package_by_id('underscore')
+
     # print(semver.SEMVER_SPEC_VERSION)
 
     '''import requests
@@ -175,4 +219,3 @@ if __name__ == '__main__':
         valid_packages = p[(offset - 1) * 10: (offset * 10 if len(p) >= offset * 10 else len(p))]
 
     print(valid_packages)'''
-

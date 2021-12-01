@@ -1,8 +1,8 @@
 import sqlite3
-import semver
 import json
 import os
 import pymysql
+import semver
 
 from Actions import Decode
 
@@ -47,12 +47,37 @@ def version_check(package_list, version_range):
     res = semver.match(version, '>3.0.0')
     res = semver.max_ver(test_range, '1.3.4')'''
 
-    if '<' and '>' and '!' not in version_range:
+    start_range = ''
+    end_range = ''
+
+    if version_range.count('.') == 1:
+        version_range = version_range + '.0'
+    elif version_range.count('.') == 0:
+        version_range = version_range + '.0.0'
+
+    if '!' not in str(version_range) and '>' not in str(version_range) and '<' not in str(version_range) \
+            and '~' not in str(version_range) and '^' not in str(version_range) and '-' not in str(version_range):
         version_range = '==' + version_range
+        start_range = version_range
+        end_range = version_range
+    elif '~' in version_range:
+        start_range = '>=' + str(version_range[1:])
+        split = version_range.split('.')
+        end_range = '<' + split[0][1:] + '.' + str(int(split[1]) + 1) + '.0'
+    elif '^' in version_range:
+        start_range = '>=' + str(version_range[1:])
+        split = version_range.split('.')
+        end_range = '<' + str(int(split[0][1:]) + 1) + '.0.0'
+    elif '-' in version_range:
+        split = version_range.split('-')
+        start_range = '>=' + split[0].strip()
+        end_range = '<=' + split[1].strip()
+
 
     good_packages = []
     for package in package_list:
-        if semver.match(package[1], version_range):
+        print(version_range)
+        if semver.match(package[1], start_range) and semver.match(package[1], end_range):
             good_packages.append(package)
 
     return good_packages
@@ -83,7 +108,8 @@ def insert_package_history(package_name, package_version, package_id, action, us
     cur.execute("INSERT INTO package_history (user_name, user_isAdmin, package_name, package_version, package_id, "
                 "action) "
                 "VALUES (%s, %s, %s, %s, %s, %s);",
-                (str(user_name), str(user_isAdmin), str(package_name), str(package_version), str(package_id), str(action), ))
+                (str(user_name), str(user_isAdmin), str(package_name), str(package_version), str(package_id),
+                 str(action),))
     conn.commit()
     mysql_close(conn)
 
@@ -92,7 +118,7 @@ def get_package_history(name):
     con = mysql_connect()
     cur = con.cursor()
 
-    cur.execute("SELECT * FROM package_history WHERE package_name=%s", (str(name), ))
+    cur.execute("SELECT * FROM package_history WHERE package_name=%s", (str(name),))
 
     ret_val = cur.fetchall()
 
@@ -104,7 +130,8 @@ def get_package_history(name):
 def post_package(name, version, p_id, url, filename):
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("INSERT INTO packages (Name,Version,ID,URL,Filename) VALUES (%s, %s, %s, %s, %s);", (str(name), str(version), str(p_id), str(url), str(filename),))
+    cur.execute("INSERT INTO packages (Name,Version,ID,URL,Filename) VALUES (%s, %s, %s, %s, %s);",
+                (str(name), str(version), str(p_id), str(url), str(filename),))
 
     con.commit()
     mysql_close(con)
@@ -229,10 +256,10 @@ def delete_package_by_name(name):
 
 
 if __name__ == '__main__':
-    #init_package_history_table()
-    #insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
-    #post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
-    print(get_package_history('testpackage'))
+    # init_package_history_table()
+    # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
+    # post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
+    # print(get_package_history('testpackage'))
 
     # print(semver.SEMVER_SPEC_VERSION)
 

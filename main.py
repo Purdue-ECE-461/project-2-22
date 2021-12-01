@@ -70,7 +70,7 @@ def protected():
 
 @app.route('/')
 def root():
-    if os.environ.get('GAE_ENV') == 'standard':
+    if os.environ.get('GAE_ENV') == 'standard' or True:
         # If deployed, use the local socket interface for accessing Cloud SQL
         unix_socket = '/cloudsql/{}'.format(database_helper.db_connection_name)
         cnx = pymysql.connect(user=database_helper.db_user, password=database_helper.db_password,

@@ -67,11 +67,44 @@ def initialize_db():
     mysql_close(conn)
 
 
+def init_package_history_table():
+    conn = mysql_connect()
+    cur = conn.cursor()
+    cur.execute("create table package_history(user_name TEXT,user_isAdmin CHAR(1),change_date TIMESTAMP NOT NULL "
+                "DEFAULT CURRENT_TIMESTAMP,package_name TEXT,package_version VARCHAR(255),package_id TEXT,"
+                "action VARCHAR(50));")
+    mysql_close(conn)
+
+
+def insert_package_history(package_name, package_version, package_id, action, user_name=None, user_isAdmin=0):
+    conn = mysql_connect()
+    cur = conn.cursor()
+
+    cur.execute("INSERT INTO package_history (user_name, user_isAdmin, package_name, package_version, package_id, "
+                "action) "
+                "VALUES (%s, %s, %s, %s, %s, %s);",
+                (str(user_name), str(user_isAdmin), str(package_name), str(package_version), str(package_id), str(action), ))
+    conn.commit()
+    mysql_close(conn)
+
+
+def get_package_history(name):
+    con = mysql_connect()
+    cur = con.cursor()
+
+    cur.execute("SELECT * FROM package_history WHERE package_name=%s", (str(name), ))
+
+    ret_val = cur.fetchall()
+
+    mysql_close(con)
+
+    return ret_val
+
+
 def post_package(name, version, p_id, url, filename):
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("INSERT INTO packages (Name,Version,ID,URL,Filename) \
-        VALUES(%s, %s, %s, %s, %s)", (name, version, p_id, url, filename,))
+    cur.execute("INSERT INTO packages (Name,Version,ID,URL,Filename) VALUES (%s, %s, %s, %s, %s);", (str(name), str(version), str(p_id), str(url), str(filename),))
 
     con.commit()
     mysql_close(con)
@@ -152,8 +185,13 @@ def get_package_by_name(name):
     cur.execute("select Name,Version,Filename from packages WHERE Name=%s", (name,))
     mysql_close(con)
 
+    ret_val = []
+
     for row in cur.fetchall():
         print(row)
+        ret_val.append(row)
+
+    return ret_val
 
 
 def update_package(name, version, p_id, url, filename):
@@ -161,7 +199,7 @@ def update_package(name, version, p_id, url, filename):
     cur = con.cursor()
     cur.execute("UPDATE packages SET URL = %s, Filename = %s \
         WHERE Name = %s AND Version = %s and ID = %s", (url, filename, name, version, p_id,))
-
+    insert_package_history(str(name), str(version), str(id), 'UPDATE', 'None', 0)
     con.commit()
     mysql_close(con)
 
@@ -182,8 +220,19 @@ def delete_package_by_id(p_id):
     mysql_close(con)
 
 
+def delete_package_by_name(name):
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("DELETE from packages where NAME=%s", str(name))
+    con.commit()
+    mysql_close(con)
+
+
 if __name__ == '__main__':
-    delete_package_by_id('underscore')
+    #init_package_history_table()
+    #insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
+    #post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
+    print(get_package_history('testpackage'))
 
     # print(semver.SEMVER_SPEC_VERSION)
 

@@ -140,19 +140,6 @@ def get_packages():
     data_list_dict = json.loads(d)
     print(data_list_dict)
 
-    #print(da[1])
-    #print(da[1]['Version'])
-
-    #will pass in a list of dictionaries to get_packages
-
-    #message_parser = reqparse.RequestParser()
-    #message_parser.add_argument('Version', type=str)
-    #message_parser.add_argument('Name', type=str)
-    #args = message_parser.parse_args()
-
-    #print(args['Version'])
-    #print(args['Name'])
-
     #returns list of dictionaries
     packages = database_helper.get_packages(data_list_dict, offset)
 
@@ -264,6 +251,7 @@ def update_package(id):
 @app.route('/package/<id>', methods=['DELETE'])
 def delete_package_by_id(id):
     print(id)
+    database_helper.delete_package_by_id(id)
     # response 200 for success
     # response 400 for a malformed request: no such package
     return render_template('page.html', endpoint=('DELETE: package/' + str(id)))
@@ -291,6 +279,9 @@ def post_package():
     current_path = os.getcwd()
     encoded_text_file = (data_list_dict['data']['Content'])
     complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file, text_file_folder_path=current_path)
+
+    #todo link the filename field to the bucket/filename
+    #todo add a column in the database for permissions/security
 
     conn = database_helper.mysql_connect()
     if database_helper.get_package_by_id(p_id) is None:
@@ -368,11 +359,11 @@ def get_package_by_name(name):
     # on no such package return 400
     # on error default
 
-    data = {
-              "id": 1,
-              "name": "Zaza",
-              "tag": "cat"
-            }
+    database_helper.get_package_by_name(name)
+
+
+
+
     r = make_response(data)
     r.mimetype = 'application/json'
     # return 400 for no such package; return 500 for failure in rating
@@ -383,6 +374,7 @@ def get_package_by_name(name):
 @app.route('/package/byName/<name>', methods=['DELETE'])
 def delete_package_by_name(name):
     print(name)
+    database_helper.delete_package_by_name(name)
     # return 400 for no such package; return 200 for success
     return render_template('page.html', endpoint=('DELETE: package/byName/' + str(name)))
 

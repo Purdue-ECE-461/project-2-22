@@ -37,8 +37,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
-#db.init_app(app)
-#db.create_all(app=app)
+# db.init_app(app)
+# db.create_all(app=app)
 
 ROWS_PER_PAGE = 5
 
@@ -50,7 +50,7 @@ def create_token():
     # Query your database for username and password
     # user = User.query.filter_by(username=username, password=password).first()
     # if user is None:
-        # the user was not found on the database
+    # the user was not found on the database
     #    return jsonify({"msg": "Bad username or password"}), 401
 
     # create a new token with the user id inside
@@ -66,6 +66,7 @@ def protected():
     print(current_user_id)
 
     return jsonify({"id": current_user_id, "username": "test"}), 200
+
 
 @app.route('/')
 def root():
@@ -95,6 +96,7 @@ def root():
     return render_template('index.html', times='1.0.0', endpoint=current_msg, user_data='1.0.0',
                            error_message='current_msg')
 
+
 @app.route('/start', methods=['POST'])
 def start():
     id = request.form['id']
@@ -104,50 +106,57 @@ def start():
             return get_packages()
         else:
             return get_package_by_id(id)
-        #get packages
+        # get packages
     elif select == "upload":
         return post_package()
-        #upload stuff
+        # upload stuff
     elif select == "update":
         return update_package(id)
-        #update stuff
+        # update stuff
     elif select == "rate":
         if id == "":
             return "Invalid package Id"
         else:
             return rate_package_by_id(id)
-        #rate stuff
+        # rate stuff
     elif select == "delete":
         if id == "":
             return delete_all_packages()
         else:
             return delete_package_by_id(id)
-        #delete stuff
+        # delete stuff
     else:
         pass
-        #error then, dont think this is possible though
+        # error then, dont think this is possible though
     return "this is " + select + " and " + str(id)
+
 
 @app.route('/packages', methods=['POST'])
 def get_packages():
-    offset = request.args.get('offset')
-    print(offset)
-    header = request.headers.get('Content-Type')
-    print(header)
+    try:
+        offset = request.args.get('offset')
+        print(offset)
+        header = request.headers.get('Content-Type')
+        print(header)
 
-    d = (str(request.data.decode('utf-8')))
-    print(d)
-    data_list_dict = json.loads(d)
-    print(data_list_dict)
+        d = (str(request.data.decode('utf-8')))
+        print(d)
+        data_list_dict = json.loads(d)
+        print(data_list_dict)
 
-    #returns list of dictionaries
-    packages = database_helper.get_packages(data_list_dict, offset)
+        # returns list of dictionaries
+        packages = database_helper.get_packages(data_list_dict, offset)
 
-    #TODO: database fetching
+        # TODO: database fetching
 
-    resp = Response(response=packages,
-                    status=200,
-                    mimetype="application/json")
+        resp = Response(response=packages,
+                        status=200,
+                        mimetype="application/json")
+    except Exception as e:
+        print("yikes")
+        print(str(e))
+        resp = make_response({"code" : 500, "message" : "Unexpected Error"})
+        resp.mimetype = 'application/json'
 
     return resp
 
@@ -176,7 +185,7 @@ def delete_all_packages():
 def get_package_by_id(id):
     print(id)
 
-    #returns in the format Name Version Filename Url Content
+    # returns in the format Name Version Filename Url Content
     ret_data = database_helper.get_package_by_id(id)
 
     data = {
@@ -211,7 +220,6 @@ def update_package(id):
     root_parser.add_argument('metadata', type=dict)
     root_parser.add_argument('data', type=dict)
 
-
     message_parser = reqparse.RequestParser()
     message_parser.add_argument('Name', type=str, location=('metadata',), required=True)
     message_parser.add_argument('Version', type=str, location=('metadata',), required=True)
@@ -221,7 +229,6 @@ def update_package(id):
     message_parser.add_argument('URL', type=str, location=('data',), required=False)
     message_parser.add_argument('JSProgram', type=str, location=('data',), required=False)
 
-
     root_args = root_parser.parse_args()
     print(root_args)
 
@@ -230,7 +237,7 @@ def update_package(id):
     data_list_dict = json.loads(d)
     print(data_list_dict)
 
-    #args = message_parser.parse_args(req=root_args)
+    # args = message_parser.parse_args(req=root_args)
     name = (data_list_dict['metadata']['Name'])
     version = (data_list_dict['metadata']['Version'])
     p_id = (data_list_dict['metadata']['ID'])
@@ -278,10 +285,11 @@ def post_package():
 
     current_path = os.getcwd()
     encoded_text_file = (data_list_dict['data']['Content'])
-    complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file, text_file_folder_path=current_path)
+    complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file,
+                                                        text_file_folder_path=current_path)
 
-    #todo link the filename field to the bucket/filename
-    #todo add a column in the database for permissions/security
+    # todo link the filename field to the bucket/filename
+    # todo add a column in the database for permissions/security
 
     conn = database_helper.mysql_connect()
     if database_helper.get_package_by_id(p_id) is None:
@@ -303,27 +311,27 @@ def post_package():
 
 @app.route('/package/<id>/rate', methods=['GET'])
 def rate_package_by_id(id):
-    #print(id)
-    #if successful rating
+    # print(id)
+    # if successful rating
     data = {
-          "BusFactor": 0,
-          "Correctness": 0,
-          "RampUp": 0,
-          "ResponsiveMaintainer": 0,
-          "LicenseScore": 0,
-          "GoodPinningPractice": 0
-        }
+        "BusFactor": 0,
+        "Correctness": 0,
+        "RampUp": 0,
+        "ResponsiveMaintainer": 0,
+        "LicenseScore": 0,
+        "GoodPinningPractice": 0
+    }
 
-    #get package variables
+    # get package variables
     variables = database_helper.get_package_by_id(id)
-    if variables['URL'] == "": #no URL, get from package.json
+    if variables['URL'] == "":  # no URL, get from package.json
         # TODO: file = decode(variables['Filename'] ---> Santiago's code
         # It should be something like
-        jsonFile = mainHelper.getPackageJson("output_file.zip") # TODO: change input to file
+        jsonFile = mainHelper.getPackageJson("output_file.zip")  # TODO: change input to file
         if jsonFile != None:
             url = mainHelper.getURL(jsonFile)
             data = mainHelper.rate(url)
-    else: #use URL
+    else:  # use URL
         data = mainHelper.rate(variables['URL'])
 
     r = make_response(data)
@@ -360,9 +368,6 @@ def get_package_by_name(name):
     # on error default
 
     database_helper.get_package_by_name(name)
-
-
-
 
     r = make_response(data)
     r.mimetype = 'application/json'

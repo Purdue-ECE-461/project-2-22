@@ -124,7 +124,7 @@ def ping_delete_package_by_name(package_name):
 
 
 if __name__ == '__main__':
-    res = ping_get_packages('1.0', 'Underscore')
+    res = ping_get_packages('^1.0', 'Underscore')
     # res = ping_get_package_by_id('lol')
     # res = ping_post_package(package_url="hi.com", package_content="hi", package_name="lol", package_id="lol",
     #                        package_js="", package_version="1.0.0")

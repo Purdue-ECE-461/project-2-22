@@ -1,6 +1,6 @@
-import Delete
-import Upload
-import ActionHelper
+from Actions import Delete
+from Actions import Upload
+from Actions import ActionHelper
 
 
 def update_file(bucket_name, object_name, source_file_local):

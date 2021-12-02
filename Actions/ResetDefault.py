@@ -1,5 +1,5 @@
-import Delete
-import List
+from Actions import Delete
+from Actions import List
 
 
 def reset_default(main_bucket):

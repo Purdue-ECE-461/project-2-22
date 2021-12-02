@@ -1,5 +1,5 @@
 import pytest
-import Create, Delete, Upload, Download, List, Rate, ResetDefault, Update, Search
+from Actions import Create, Delete, Upload, Download, List, Rate, ResetDefault, Update, Search
 
 
 # Create bucket Testing

@@ -28,8 +28,8 @@ def test_upload_download():
     # upload a file
     current_path = os.getcwd()
     encoded_text_file = upload_str
-    complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file,
-                                                        text_file_folder_path=current_path, filename=upload_str[0] + 'test_upload.txt')
+    complete_zip_file_path = Decode.string_to_text_file(encoded_text_file,
+                                                        current_path, upload_str[0] + 'test_upload')
     print("saved")
     Upload.upload_file(upload_str[0] + 'test_upload.txt', BUCKET)
     print("uploaded")

@@ -316,35 +316,58 @@ def post_package():
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)
 
-    current_path = os.getcwd()
-    encoded_text_file = (data_list_dict['data']['Content'])
-    complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file,
-                                                        text_file_folder_path=current_path)
+    ingestion = 1
+    for key, value in data_list_dict['data'].items():
+        if key == 'Content':
+            ingestion = 0
 
-    # todo link the filename field to the bucket/filename
-    # todo add a column in the database for permissions/security
+    if ingestion == 0: #upload content string
+        current_path = os.getcwd()
+        encoded_text_file = (data_list_dict['data']['Content'])
+        complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file,
+                                                            text_file_folder_path=current_path)
 
-    # Decode.py: Encoded string to text file
-    current_path = os.getcwd()
-    encoded_text_file = (data_list_dict['data']['Content'])
-    complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
-        encoded_text=encoded_text_file,
-        text_file_folder_path=current_path,
-        filename_original=name
-    )
+        # todo link the filename field to the bucket/filename
+        # todo add a column in the database for permissions/security
 
-    conn = database_helper.mysql_connect()
-    if database_helper.get_package_by_id(p_id) is None:
-        database_helper.post_package(name, version, p_id, url, complete_zip_file_path)
-        # Cloud Storage: Uploading file to GCP.
-        Upload.upload_file(
-            source_file_local=complete_text_file_path,
-            destination_bucket_gcp=MAIN_BUCKET_NAME,
+        # Decode.py: Encoded string to text file
+        current_path = os.getcwd()
+        encoded_text_file = (data_list_dict['data']['Content'])
+        complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
+            encoded_text=encoded_text_file,
+            text_file_folder_path=current_path,
+            filename_original=name
         )
-        status_code = 201
+
+        conn = database_helper.mysql_connect()
+        if database_helper.get_package_by_id(p_id) is None:
+            database_helper.post_package(name, version, p_id, url, complete_zip_file_path)
+            # Cloud Storage: Uploading file to GCP.
+            Upload.upload_file(
+                source_file_local=complete_text_file_path,
+                destination_bucket_gcp=MAIN_BUCKET_NAME,
+            )
+            status_code = 201
+        else:
+            status_code = 403
+        database_helper.mysql_close(conn)
     else:
-        status_code = 403
-    database_helper.mysql_close(conn)
+        scores = mainHelper.rate(url)
+        ingestible = 1
+        for key, value in scores.items():
+            if value < 0.5:
+                ingestible = 0
+        if ingestible == 1:
+            conn = database_helper.mysql_connect()
+            if database_helper.get_package_by_id(p_id) is None:
+                database_helper.post_package(name, version, p_id, url, None)
+                status_code = 201
+            else:
+                status_code = 403 #todo: need value to be changed?
+            database_helper.mysql_close(conn)
+        else:
+            status_code = 403 #todo: need value to be changed?
+
 
     # if malformed request
 
@@ -354,7 +377,8 @@ def post_package():
     r.status_code = status_code
 
     # Remove file when successfully uploaded
-    os.remove(complete_text_file_path)
+    if ingestion == 0:
+        os.remove(complete_text_file_path)
 
     return r
     # response = Response(response=data, status=201, mimetype='application/json')

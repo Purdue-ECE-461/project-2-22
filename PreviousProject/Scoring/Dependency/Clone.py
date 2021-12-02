@@ -30,6 +30,15 @@ def module_clone_readme_analyzer(module_name):
             name = directory + "/package.json"
             file = open(name)
             data = json.load(file)
+
+            dep = 0
+            for key, value in data.items():
+                if key == 'dependencies':
+                    dep = 1
+
+            if dep == 0:
+                return 0
+
             for key, value in data["dependencies"].items():
                 p = re.compile("[~^<>]?[=]?\d+\.\d+\.?[X|x|\d+]?")
                 x = p.search(value)

@@ -4,12 +4,12 @@ import json
 from flask import Flask, render_template, request, url_for, make_response, Response, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 
-from firebase import firebase
-from google.cloud import storage
+#from firebase import firebase
+#from google.cloud import storage
 from google.auth.transport import requests
-from google.cloud import datastore
+#from google.cloud import datastore
 import google.oauth2.id_token
-from flask_login import login_user, logout_user, current_user, login_required, LoginManager
+#from flask_login import login_user, logout_user, current_user, login_required, LoginManager
 from werkzeug.utils import redirect
 
 import database_helper
@@ -286,7 +286,7 @@ def post_package():
     d = (str(request.data.decode('utf-8')))
     print(d)
     data_list_dict = json.loads(d)
-    print(data_list_dict)
+    #print(data_list_dict)
 
     # args = message_parser.parse_args(req=root_args)
     name = (data_list_dict['metadata']['Name'])
@@ -297,15 +297,36 @@ def post_package():
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)
 
-    current_path = os.getcwd()
-    encoded_text_file = (data_list_dict['data']['Content'])
-    complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file, text_file_folder_path=current_path)
+    ingestion = 1
+    for key, value in data_list_dict['data'].items():
 
-    if database_helper.get_package_by_id(p_id) is None:
-        database_helper.post_package(name, version, p_id, url, filename=complete_zip_file_path)
-        status_code = 201
+        if key == 'Content':
+            ingestion = 0
+
+    if ingestion == 0: # provided a Content string
+        current_path = os.getcwd()
+        encoded_text_file = (data_list_dict['data']['Content'])
+        complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file, text_file_folder_path=current_path)
+
+        if database_helper.get_package_by_id(p_id) is None:
+            database_helper.post_package(name, version, p_id, url, filename=complete_zip_file_path)
+            status_code = 201
+        else:
+            status_code = 403
     else:
-        status_code = 403
+        scores = mainHelper.rate(url)
+        ingestible = 1
+        for key, value in scores.items():
+            if value < 0.5:
+                ingestible = 0
+        if ingestible == 1:
+            if database_helper.get_package_by_id(p_id) is None:
+                database_helper.post_package(name, version, p_id, url, filename=None)
+                status_code = 201
+            else:
+                status_code = 403
+        else:
+            status_code = 403 #TODO: is there anything else?
 
     # if malformed request
 

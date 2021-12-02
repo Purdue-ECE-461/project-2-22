@@ -199,9 +199,9 @@ def get_package_by_id(id):
     # take ret_data[content] with the bucket path and put that into a text file
     # read in that text file and assign that to a content variable
 
-    Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Content'], destination_folder_local=DEST_FOLDER)
+    Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Filename'], destination_folder_local=DEST_FOLDER)
     # read in text file
-    with open(DEST_FOLDER + '/' + ret_data['Content']) as f:
+    with open(DEST_FOLDER + '/' + ret_data['Filename']) as f:
         lines = f.readlines()
 
     data = {
@@ -219,8 +219,6 @@ def get_package_by_id(id):
 
     r = make_response(data)
     r.mimetype = 'application/json'
-
-    # TODO: Use data for GCP
 
     render_template('page.html', endpoint=('GET: package/' + str(id)))
     return r

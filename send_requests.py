@@ -1,6 +1,6 @@
 import requests
 
-APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+APP_BASE_URL = r"http://127.0.0.1:8080/"
 
 
 # TESTING GET PACKAGES
@@ -125,7 +125,7 @@ def ping_delete_package_by_name(package_name):
 
 if __name__ == '__main__':
     # res = ping_get_packages('^1.0', 'Underscore')
-    res = ping_get_package_by_id('underscore')
+    res = ping_get_package_by_id('lol')
     # res = ping_post_package(package_url="hi.com", package_content="hi", package_name="lol", package_id="lol",
     #                        package_js="", package_version="1.0.0")
     print(res[2])

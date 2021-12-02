@@ -18,6 +18,10 @@ from flask_restful import Api, Resource, reqparse, abort
 import os
 import pymysql
 from Actions import Decode
+from Actions import Download
+
+BUCKET = 'acme_corporation_general'
+DEST_FOLDER = 'downloaded_files'
 
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ece-461-project-2-22-44eb5eb60671.json"
 
@@ -155,7 +159,7 @@ def get_packages():
     except Exception as e:
         print("yikes")
         print(str(e))
-        resp = make_response({"code" : 500, "message" : "Unexpected Error"})
+        resp = make_response({"code": 500, "message": "Unexpected Error"})
         resp.mimetype = 'application/json'
 
     return resp
@@ -188,6 +192,14 @@ def get_package_by_id(id):
     # returns in the format Name Version Filename Url Content
     ret_data = database_helper.get_package_by_id(id)
 
+    # take ret_data[content] with the bucket path and put that into a text file
+    # read in that text file and assign that to a content variable
+
+    Download.download_file(bucket=BUCKET, file_to_download=ret_data['Content'], destination_folder_local=DEST_FOLDER)
+    # read in text file
+    with open(DEST_FOLDER + '/' + ret_data['Content']) as f:
+        lines = f.readlines()
+
     data = {
         "metadata": {
             "Name": ret_data['Name'],
@@ -195,7 +207,7 @@ def get_package_by_id(id):
             "ID": str(id)
         },
         "data": {
-            "Content": ret_data['Content'],
+            "Content": str(lines[0]),
             "URL": ret_data['URL'],
             "JSProgram": "None"
         }

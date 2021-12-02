@@ -1,5 +1,5 @@
 import os
-import ActionHelper
+from Actions import ActionHelper
 
 
 def download_file(bucket, file_to_download, destination_folder_local):

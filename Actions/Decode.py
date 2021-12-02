@@ -15,8 +15,7 @@ def decode_base64(output_zip, string_to_decode):
         f.write(decoded)
 
 
-def string_to_text_file(encoded_text, text_file_folder_path):
-    filename = "file_encoded_string.txt"
+def string_to_text_file(encoded_text, text_file_folder_path, filename="file_encoded_string.txt"):
     file_path = os.path.join(text_file_folder_path, filename)
     with open(file_path, 'w') as f:
         f.write(encoded_text)

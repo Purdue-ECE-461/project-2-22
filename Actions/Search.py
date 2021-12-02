@@ -1,7 +1,7 @@
-import List
+from Actions import List
 import os
-import List
-import Create
+from Actions import List
+from Actions import Create
 
 
 # There should be an action that clones the module from npm to then download it

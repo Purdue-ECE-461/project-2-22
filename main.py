@@ -17,7 +17,7 @@ import mainHelper
 from flask_restful import Api, Resource, reqparse, abort
 import os
 import pymysql
-from Actions import Decode
+from Actions import Decode, Delete, ResetDefault, Download, Upload, Update, Search
 
 # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ece-461-project-2-22-44eb5eb60671.json"
 
@@ -41,6 +41,8 @@ api = Api(app)
 # db.create_all(app=app)
 
 ROWS_PER_PAGE = 5
+# Bucket name for GCP
+MAIN_BUCKET_NAME = "acme_corporation_general"
 
 
 @app.route("/token", methods=["POST"])
@@ -173,6 +175,8 @@ def delete_all_packages():
     if permission:
         database_helper.delete_all_packages()
         status_code = 200
+        # Cloud Storage: Reset bucket to default, empty all objects
+        ResetDefault.reset_default(MAIN_BUCKET_NAME)
     else:
         status_code = 401
 
@@ -203,6 +207,8 @@ def get_package_by_id(id):
 
     r = make_response(data)
     r.mimetype = 'application/json'
+
+    # TODO: Use data for GCP
 
     render_template('page.html', endpoint=('GET: package/' + str(id)))
     return r
@@ -243,8 +249,22 @@ def update_package(id):
     p_id = (data_list_dict['metadata']['ID'])
     url = (data_list_dict['data']['URL'])
 
+    # Decode: Put the encoded string to a text file
+    current_path = os.getcwd()
+    encoded_text_file = (data_list_dict['data']['Content'])
+    complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
+        encoded_text=encoded_text_file,
+        text_file_folder_path=current_path,
+        filename_original=name
+    )
+
     if database_helper.get_package_by_id(p_id) is not None:
-        database_helper.update_package(name, version, p_id, url, filename="")
+        database_helper.update_package(name, version, p_id, url, filename=complete_text_file_path)
+        Update.update_file(
+            bucket_name=MAIN_BUCKET_NAME,
+            object_name=output_filename_txt,
+            source_file_local=complete_text_file_path
+        )
         status_code = 200
     else:
         status_code = 400
@@ -259,6 +279,7 @@ def update_package(id):
 def delete_package_by_id(id):
     print(id)
     database_helper.delete_package_by_id(id)
+    # TODO: Need name of the package for GCP
     # response 200 for success
     # response 400 for a malformed request: no such package
     return render_template('page.html', endpoint=('DELETE: package/' + str(id)))
@@ -291,9 +312,23 @@ def post_package():
     # todo link the filename field to the bucket/filename
     # todo add a column in the database for permissions/security
 
+    # Decode.py: Encoded string to text file
+    current_path = os.getcwd()
+    encoded_text_file = (data_list_dict['data']['Content'])
+    complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
+        encoded_text=encoded_text_file,
+        text_file_folder_path=current_path,
+        filename_original=name
+    )
+
     conn = database_helper.mysql_connect()
     if database_helper.get_package_by_id(p_id) is None:
         database_helper.post_package(name, version, p_id, url, complete_zip_file_path)
+        # Cloud Storage: Uploading file to GCP.
+        Upload.upload_file(
+            source_file_local=complete_text_file_path,
+            destination_bucket_gcp=MAIN_BUCKET_NAME,
+        )
         status_code = 201
     else:
         status_code = 403
@@ -305,6 +340,10 @@ def post_package():
     r = make_response(data)
     r.mimetype = 'application/json'
     r.status_code = status_code
+
+    # Remove file when successfully uploaded
+    os.remove(complete_text_file_path)
+
     return r
     # response = Response(response=data, status=201, mimetype='application/json')
 
@@ -369,6 +408,18 @@ def get_package_by_name(name):
 
     database_helper.get_package_by_name(name)
 
+    # Download file from GCP
+    filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, name)
+    if filename_in_gcp is not None:
+        current_path = os.getcwd()
+        Download.download_file(
+            bucket=MAIN_BUCKET_NAME,
+            file_to_download=filename_in_gcp,
+            destination_folder_local=current_path  # Where to download?
+        )
+    else:
+        print("File not found on GCP")
+
     r = make_response(data)
     r.mimetype = 'application/json'
     # return 400 for no such package; return 500 for failure in rating
@@ -380,6 +431,15 @@ def get_package_by_name(name):
 def delete_package_by_name(name):
     print(name)
     database_helper.delete_package_by_name(name)
+    # Delete file from GCP
+    filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, name)
+    if filename_in_gcp is not None:
+        Delete.delete_object(
+            bucket_name=MAIN_BUCKET_NAME,
+            object_name=filename_in_gcp
+        )
+    else:
+        print("File not found on GCP")
     # return 400 for no such package; return 200 for success
     return render_template('page.html', endpoint=('DELETE: package/byName/' + str(name)))
 

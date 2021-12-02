@@ -4,12 +4,12 @@ import json
 from flask import Flask, render_template, request, url_for, make_response, Response, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 
-#from firebase import firebase
-#from google.cloud import storage
+from firebase import firebase
+from google.cloud import storage
 from google.auth.transport import requests
-#from google.cloud import datastore
-#import google.oauth2.id_token
-#from flask_login import login_user, logout_user, current_user, login_required, LoginManager
+from google.cloud import datastore
+import google.oauth2.id_token
+from flask_login import login_user, logout_user, current_user, login_required, LoginManager
 from werkzeug.utils import redirect
 
 import database_helper

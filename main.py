@@ -250,7 +250,7 @@ def update_package(id):
         filename_original=name
     )
 
-    if database_helper.is_unique_package(name, version, id):
+    if database_helper.package_exists(name, version, id):
         database_helper.update_package(name, version, p_id, url, output_filename_txt)
         Update.update_file(
             bucket_name=MAIN_BUCKET_NAME,

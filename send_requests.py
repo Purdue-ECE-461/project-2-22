@@ -1,7 +1,7 @@
 import requests
 
-#APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-APP_BASE_URL = r'http://127.0.0.1:8080/'
+APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+# APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -155,7 +155,12 @@ if __name__ == '__main__':
     # res = ping_get_package_by_id(49)
     # res = ping_rate_package_by_id('lolx')
     # res = ping_delete_package_by_id(49)
-    #ping_reset()
-    res = ping_post_package(package_url="tt", package_content="hi", package_name="testagain", package_id="lolx",
-     package_js="", package_version="1.0.0")
+    # ping_reset()
+    res = ping_post_package(package_url="init", package_content="init", package_name="test_update",
+                            package_id="test_update",
+                            package_js="", package_version="1.0.0")
+    print(res)
+
+    res = ping_update_package_by_id(package_url="update_test", package_content="update_test", package_name="test_update", package_id="55",
+                                    package_version="1.0.0")
     print(res)

@@ -306,6 +306,19 @@ def is_unique_package(package_name, package_version, package_id):
         return True
 
 
+def package_exists(package_name, package_version, package_id):
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT * from packages WHERE Name=%s AND Version=%s AND INTERNAL_ID=" + str(package_id), (str(package_name), str(package_version)))
+    ret_val = cur.fetchall()
+    mysql_close(con)
+
+    if len(ret_val) > 0:
+        return True
+    else:
+        return False
+
+
 if __name__ == '__main__':
     # init_package_history_table()
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)

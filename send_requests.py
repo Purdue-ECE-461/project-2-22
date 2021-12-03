@@ -1,8 +1,8 @@
 import requests
 import database_helper
 
-# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-APP_BASE_URL = r'http://127.0.0.1:8080/'
+APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+# APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -159,4 +159,4 @@ if __name__ == '__main__':
     # p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
     # res = ping_rate_package_by_id(p_id)
     ping_reset()
-    database_helper.get_all_packages()
+    database_helper.get_all_package_history()

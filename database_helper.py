@@ -181,6 +181,20 @@ def get_all_packages():
     return packages
 
 
+def get_all_package_history():
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT * from package_history")
+
+    packages = []
+    for row in cur.fetchall():
+        packages.append(row)
+
+    print(packages)
+    mysql_close(con)
+    return packages
+
+
 def get_package_by_id(p_id):
     con = mysql_connect()
     cur = con.cursor()

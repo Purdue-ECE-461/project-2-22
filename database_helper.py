@@ -251,6 +251,7 @@ def delete_all_packages():
     con = mysql_connect()
     cur = con.cursor()
     cur.execute("DELETE from packages")
+    cur.execute("DELETE from package_history")
     con.commit()
     mysql_close(con)
 

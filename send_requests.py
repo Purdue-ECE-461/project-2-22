@@ -1,8 +1,8 @@
 import requests
 import database_helper
 
-APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-# APP_BASE_URL = r'http://127.0.0.1:8080/'
+# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -22,14 +22,14 @@ def ping_get_packages(version, name, offset=0):
 
 
 # TESTING DELETE ALL PACKAGES
+# tested
 def ping_reset():
     r = requests.delete(APP_BASE_URL + 'reset')
 
     headers = r.headers
     status_code = r.status_code
-    response = r.json()
 
-    return headers, status_code, response
+    return headers, status_code
 
 
 # TESTING GET PACKAGE BY ID
@@ -130,7 +130,8 @@ def ping_authenticate(name, isAdmin, password):
 
     return headers, status_code, response
 
-#tested
+
+# tested
 def ping_get_package_by_name(package_name):
     r = requests.get(APP_BASE_URL + 'package/byName/' + str(package_name))
 
@@ -140,7 +141,8 @@ def ping_get_package_by_name(package_name):
 
     return headers, status_code, response
 
-#tested
+
+# tested
 def ping_delete_package_by_name(package_name):
     r = requests.delete(APP_BASE_URL + 'package/byName/' + str(package_name))
 
@@ -156,6 +158,5 @@ if __name__ == '__main__':
     # res = ping_post_package('lol', '3.1.2', '67', 'https://github.com/lodash/lodash', '', 'cloudy with a chance of meatballs')
     # p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
     # res = ping_rate_package_by_id(p_id)
-    res = ping_delete_package_by_name('lol')
-    print(res)
-
+    ping_reset()
+    database_helper.get_all_packages()

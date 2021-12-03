@@ -155,8 +155,7 @@ def ping_delete_package_by_name(package_name):
 if __name__ == '__main__':
     # res = ping_get_packages('^1.0', 'Underscore')
     # res = ping_get_package_by_id(49)
-    # res = ping_post_package('lol', '3.1.2', '67', 'https://github.com/lodash/lodash', '', 'cloudy with a chance of meatballs')
+    res = ping_post_package('lol', '3.1.2', '67', 'https://github.com/lodash/lodash', '', 'cloudy with a chance of meatballs')
+    print(res)
     # p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
     # res = ping_rate_package_by_id(p_id)
-    ping_reset()
-    database_helper.get_all_package_history()

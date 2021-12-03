@@ -280,12 +280,17 @@ def is_unique_package(package_name, package_version, package_id):
     cur = con.cursor()
     cur.execute("SELECT Name,Version from packages WHERE ID=%s", str(package_id))
     ret_val = cur.fetchall()
-    name, version = ret_val[0]
+    mysql_close(con)
+
+    if len(ret_val) > 0:
+        name, version = ret_val[0]
+    else:
+        return True
+
     if name == package_name and version == package_version:
         ret = False
     else:
         ret = True
-    mysql_close(con)
     return ret
 
 
@@ -294,7 +299,7 @@ if __name__ == '__main__':
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
     # post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
     # print(delete_package_by_id(48))
-    print(is_unique_package('lol', '1.0.0', 'lol'))
+    print(is_unique_package('lol', '1.0.0', 'lolxx'))
 
     # print(semver.SEMVER_SPEC_VERSION)
 

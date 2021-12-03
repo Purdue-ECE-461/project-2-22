@@ -174,6 +174,8 @@ def delete_all_packages():
     # return 200 registry is reset
     # return 401 no permissions to reset the registry
 
+    # todo add a function to reset to table if time
+
     permission = True
 
     if permission:
@@ -250,7 +252,7 @@ def update_package(id):
 
     ret_dat = database_helper.get_package_by_id(p_id)
 
-    if ret_dat is not None:
+    if database_helper.is_unique_package(name, version, id):
         database_helper.update_package(name, version, p_id, url, output_filename_txt)
         Update.update_file(
             bucket_name=MAIN_BUCKET_NAME,
@@ -321,9 +323,7 @@ def post_package():
             filename_original=name
         )
 
-        # todo this doesn't make sense with what jamie posted but it doesn't make sense otherwise too
-
-        int_id = database_helper.get_last_id()
+        int_id = database_helper.get_last_id() if database_helper.get_last_id() is not None else 0
 
         conn = database_helper.mysql_connect()
         if database_helper.get_package_by_id(int_id + 1) is None:

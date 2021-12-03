@@ -1,7 +1,8 @@
 import requests
+import database_helper
 
 APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-# APP_BASE_URL = r'http://127.0.0.1:8080/'
+#APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -153,14 +154,8 @@ def ping_delete_package_by_name(package_name):
 if __name__ == '__main__':
     # res = ping_get_packages('^1.0', 'Underscore')
     # res = ping_get_package_by_id(49)
-    # res = ping_rate_package_by_id('lolx')
-    # res = ping_delete_package_by_id(49)
-    # ping_reset()
-    res = ping_post_package(package_url="init", package_content="init", package_name="test_update",
-                            package_id="test_update",
-                            package_js="", package_version="1.0.0")
-    print(res)
+    res = ping_post_package('Cloudy', '3.1.2', '67', 'https://github.com/cloudinary/cloudinary_npm', '', 'cloudy with a chance of meatballs')
+    p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
+    res = ping_rate_package_by_id(p_id)
+    # res = ping_delete_package_by_id(54)
 
-    res = ping_update_package_by_id(package_url="update_test", package_content="update_test", package_name="test_update", package_id="55",
-                                    package_version="1.0.0")
-    print(res)

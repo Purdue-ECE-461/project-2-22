@@ -201,7 +201,8 @@ def get_package_by_id(id):
     # take ret_data[content] with the bucket path and put that into a text file
     # read in that text file and assign that to a content variable
 
-    Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Filename'], destination_folder_local=DEST_FOLDER)
+    Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Filename'],
+                           destination_folder_local=DEST_FOLDER)
     # read in text file
     with open(DEST_FOLDER + '/' + ret_data['Filename']) as f:
         lines = f.readlines()
@@ -302,7 +303,7 @@ def post_package():
         if key == 'Content':
             ingestion = 0
 
-    if ingestion == 0: #upload content string
+    if ingestion == 0:  # upload content string
         '''current_path = os.getcwd()
         encoded_text_file = (data_list_dict['data']['Content'])
         complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file,
@@ -349,11 +350,10 @@ def post_package():
                 database_helper.post_package(name, version, p_id, url, None)
                 status_code = 201
             else:
-                status_code = 405 #todo: need value to be changed? let's just have that mean uningestible
+                status_code = 405  # todo: need value to be changed? let's just have that mean uningestible
             database_helper.mysql_close(conn)
         else:
-            status_code = 405 #todo: need value to be changed?
-
+            status_code = 405  # todo: need value to be changed?
 
     data = {"Name": name, "Version": version, "ID": int_id + 1}
     r = make_response(data)
@@ -381,7 +381,12 @@ def rate_package_by_id(id):
     }
 
     # get package variables
+
     variables = database_helper.get_package_by_id(id)
+
+    if variables is None:
+        return Response(status=400)
+
     if variables['URL'] == "":  # no URL, get from package.json
         # TODO: file = decode(variables['Filename'] ---> Santiago's code
         # It should be something like

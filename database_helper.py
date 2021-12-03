@@ -184,7 +184,7 @@ def get_all_packages():
 def get_package_by_id(p_id):
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("select Name,Version,Filename,URL from packages WHERE ID=" + str(p_id))
+    cur.execute("select Name,Version,Filename,URL from packages WHERE INTERNAL_ID=" + str(p_id))
     mysql_close(con)
 
     variables = []
@@ -264,7 +264,10 @@ def delete_package_by_id(p_id):
     cur.execute("DELETE from packages where INTERNAL_ID=" + str(p_id))
     con.commit()
     mysql_close(con)
-    return res[0][0]
+    if len(res) > 0:
+        return res[0][0]
+    else:
+        return None
 
 
 def delete_package_by_name(name):
@@ -319,12 +322,24 @@ def package_exists(package_name, package_version, package_id):
         return False
 
 
+def get_package_id(package_name, package_version, package_id):
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT INTERNAL_ID from packages WHERE Name=%s AND Version=%s AND ID=%s", (str(package_name), str(package_version), str(package_id)))
+    ret_val = cur.fetchall()
+    mysql_close(con)
+
+    if len(ret_val) > 0:
+        return ret_val[0][0]
+    else:
+        return None
+
+
 if __name__ == '__main__':
     # init_package_history_table()
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
     # post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
-    # print(delete_package_by_id(48))
-    print(is_unique_package('testagain', '1.0.0', 'lolx'))
+    # print(is_unique_package('testagain', '1.0.0', 'lolx'))
 
     # print(semver.SEMVER_SPEC_VERSION)
 

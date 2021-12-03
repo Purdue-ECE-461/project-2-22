@@ -433,7 +433,7 @@ def get_package_by_name(name):
     database_helper.get_package_by_name(name)
 
     # Download file from GCP
-    filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, name)
+    '''filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, name)
     if filename_in_gcp is not None:
         current_path = os.getcwd()
         Download.download_file(
@@ -442,13 +442,36 @@ def get_package_by_name(name):
             destination_folder_local=current_path  # Where to download?
         )
     else:
-        print("File not found on GCP")
+        print("File not found on GCP")'''
 
-    r = make_response(data)
-    r.mimetype = 'application/json'
-    # return 400 for no such package; return 500 for failure in rating
-    render_template('page.html', endpoint=('GET: package/byName/' + str(name)))
-    return r
+    data = database_helper.get_package_by_name_history(name)
+
+    if len(data) == 0:
+        return Response(status=400)
+
+    print(data)
+
+    data_list = []
+
+    for d in data:
+        new_dict = {'User': {
+                        'Name': 'No User',
+                        'isAdmin': 'N/A'
+                    },
+                    'Date': str(d[2]),
+                    'PackageMetadata': {
+                        'Name': d[3],
+                        'Version': d[4],
+                        'ID': d[5]
+                    },
+                    'Action': d[6]}
+        data_list.append(new_dict)
+
+    r = json.dumps(data_list)
+
+    return Response(response=r,
+                        status=200,
+                        mimetype="application/json")
 
 
 @app.route('/package/byName/<name>', methods=['DELETE'])

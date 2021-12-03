@@ -226,13 +226,12 @@ def get_package_by_name(name):
 def get_package_by_name_history(name):
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("select * from package_history WHERE Name=%s", (name,))
+    cur.execute("select * from package_history WHERE package_name=%s", (str(name),))
     mysql_close(con)
 
     ret_val = []
 
     for row in cur.fetchall():
-        print(row)
         ret_val.append(row)
 
     return ret_val
@@ -340,7 +339,7 @@ if __name__ == '__main__':
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
     # post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
     # print(is_unique_package('testagain', '1.0.0', 'lolx'))
-
+    get_all_packages()
     # print(semver.SEMVER_SPEC_VERSION)
 
     '''import requests

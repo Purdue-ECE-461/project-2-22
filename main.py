@@ -20,6 +20,8 @@ import pymysql
 from Actions import Decode, Delete, ResetDefault, Download, Upload, Update, Search
 from Actions import Decode
 from Actions import Download
+import shutil
+import tempfile
 
 DEST_FOLDER = 'downloaded_files'
 
@@ -243,7 +245,8 @@ def update_package(id):
     url = (data_list_dict['data']['URL'])
 
     # Decode: Put the encoded string to a text file
-    current_path = os.getcwd()
+    # current_path = os.getcwd()
+    current_path = tempfile.mkdtemp()
     encoded_text_file = (data_list_dict['data']['Content'])
     complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
         encoded_text=encoded_text_file,
@@ -261,6 +264,8 @@ def update_package(id):
         status_code = 200
     else:
         status_code = 400
+    # ------------
+    shutil.rmtree(complete_text_file_path)
 
     return Response(status=status_code)
 
@@ -314,7 +319,8 @@ def post_package():
         # todo add a column in the database for permissions/security
 
         # Decode.py: Encoded string to text file
-        current_path = os.getcwd()
+        # current_path = os.getcwd()
+        current_path = tempfile.mkdtemp()
         encoded_text_file = (data_list_dict['data']['Content'])
         complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
             encoded_text=encoded_text_file,
@@ -336,6 +342,7 @@ def post_package():
             status_code = 201
         else:
             status_code = 403
+        shutil.rmtree(complete_text_file_path)
     else:
         print("ingesting")
         scores = mainHelper.rate(url)

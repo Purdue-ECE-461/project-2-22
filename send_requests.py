@@ -156,5 +156,6 @@ if __name__ == '__main__':
     # res = ping_rate_package_by_id('lolx')
     # res = ping_delete_package_by_id(49)
     #ping_reset()
-    res = ping_post_package(package_url="tt", package_content="hi", package_name="lol", package_id="lolx",
+    res = ping_post_package(package_url="tt", package_content="hi", package_name="testagain", package_id="lolx",
      package_js="", package_version="1.0.0")
+    print(res)

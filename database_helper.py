@@ -132,6 +132,8 @@ def post_package(name, version, p_id, url, filename):
     cur.execute("INSERT INTO packages (Name,Version,ID,URL,Filename) VALUES (%s, %s, %s, %s, %s);",
                 (str(name), str(version), str(p_id), str(url), str(filename),))
 
+    insert_package_history(name, version, get_last_id(), 'CREATE')
+
     con.commit()
     mysql_close(con)
 
@@ -199,6 +201,7 @@ def get_package_by_id(p_id):
             "URL": variables[0][3],
             "Content": variables[0][2]  # needs to be decoded
         }
+        insert_package_history(data["Name"], data["Version"], p_id, 'DOWNLOAD')
     else:
         data = None
 
@@ -209,6 +212,21 @@ def get_package_by_name(name):
     con = mysql_connect()
     cur = con.cursor()
     cur.execute("select Name,Version,Filename from packages WHERE Name=%s", (name,))
+    mysql_close(con)
+
+    ret_val = []
+
+    for row in cur.fetchall():
+        print(row)
+        ret_val.append(row)
+
+    return ret_val
+
+
+def get_package_by_name_history(name):
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("select * from package_history WHERE Name=%s", (name,))
     mysql_close(con)
 
     ret_val = []
@@ -278,20 +296,14 @@ def get_last_id():
 def is_unique_package(package_name, package_version, package_id):
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("SELECT Name,Version from packages WHERE ID=%s", str(package_id))
+    cur.execute("SELECT * from packages WHERE ID=%s AND Name=%s AND Version=%s", (str(package_id), str(package_name), str(package_version)))
     ret_val = cur.fetchall()
     mysql_close(con)
 
     if len(ret_val) > 0:
-        name, version = ret_val[0]
+        return False
     else:
         return True
-
-    if name == package_name and version == package_version:
-        ret = False
-    else:
-        ret = True
-    return ret
 
 
 if __name__ == '__main__':
@@ -299,7 +311,7 @@ if __name__ == '__main__':
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
     # post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
     # print(delete_package_by_id(48))
-    print(is_unique_package('lol', '1.0.0', 'lolxx'))
+    print(is_unique_package('testagain', '1.0.0', 'lolx'))
 
     # print(semver.SEMVER_SPEC_VERSION)
 

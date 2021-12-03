@@ -250,8 +250,6 @@ def update_package(id):
         filename_original=name
     )
 
-    ret_dat = database_helper.get_package_by_id(p_id)
-
     if database_helper.is_unique_package(name, version, id):
         database_helper.update_package(name, version, p_id, url, output_filename_txt)
         Update.update_file(
@@ -326,7 +324,8 @@ def post_package():
         int_id = database_helper.get_last_id() if database_helper.get_last_id() is not None else 0
 
         conn = database_helper.mysql_connect()
-        if database_helper.get_package_by_id(int_id + 1) is None:
+        print(database_helper.is_unique_package(name, version, p_id))
+        if database_helper.is_unique_package(name, version, p_id):
             database_helper.post_package(name, version, p_id, url, output_filename_txt)
             # Cloud Storage: Uploading file to GCP.
             Upload.upload_file(
@@ -336,7 +335,6 @@ def post_package():
             status_code = 201
         else:
             status_code = 403
-        database_helper.mysql_close(conn)
     else:
         print("ingesting")
         scores = mainHelper.rate(url)
@@ -347,7 +345,7 @@ def post_package():
                 ingestible = 0
         if ingestible == 1:
             conn = database_helper.mysql_connect()
-            if database_helper.get_package_by_id(p_id) is None:
+            if database_helper.is_unique_package(name, version, p_id):
                 database_helper.post_package(name, version, p_id, url, None)
                 status_code = 201
             else:

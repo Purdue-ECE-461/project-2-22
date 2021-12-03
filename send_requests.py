@@ -30,6 +30,7 @@ def ping_reset():
 
 
 # TESTING GET PACKAGE BY ID
+# tested locally successfully
 def ping_get_package_by_id(package_id):
     r = requests.get(APP_BASE_URL + 'package/' + str(package_id))
 
@@ -41,28 +42,34 @@ def ping_get_package_by_id(package_id):
 
 
 # TEST UPDATE PACKAGE
-def ping_update_package_by_id(package_id):
-    r = requests.put(APP_BASE_URL + 'package/' + str(package_id))
+# Tested locally successfully
+def ping_update_package_by_id(package_name, package_version, package_id, package_url, package_content):
+    payload = {'data':
+                   {'URL': str(package_url), 'JSProgram': 'update_test', 'Content': str(package_content)},
+               'metadata':
+                   {'Name': str(package_name), 'Version': str(package_version), 'ID': str(package_id)}
+               }
+    r = requests.put(APP_BASE_URL + 'package/' + str(package_id), json=payload)
 
     headers = r.headers
     status_code = r.status_code
-    response = r.json()
 
-    return headers, status_code, response
+    return headers, status_code
 
 
 # TEST DELETE PACKAGE BY ID
+# TESTED LOCALLY
 def ping_delete_package_by_id(package_id):
     r = requests.delete(APP_BASE_URL + 'package/' + str(package_id))
 
     headers = r.headers
     status_code = r.status_code
-    response = r.json()
 
-    return headers, status_code, response
+    return headers, status_code
 
 
 # TEST POST PACKAGE
+# Tested
 def ping_post_package(package_name, package_version, package_id, package_url, package_js, package_content):
     payload = {'data':
                    {'URL': str(package_url), 'JSProgram': str(package_js), 'Content': str(package_content)},
@@ -79,7 +86,24 @@ def ping_post_package(package_name, package_version, package_id, package_url, pa
     return headers, status_code, response
 
 
+# TEST POST PACKAGE
+# Tested
+def ping_post_package_no_content(package_name, package_version, package_id, package_url, package_js):
+    payload = {'data':
+                   {'URL': str(package_url), 'JSProgram': str(package_js)},
+               'metadata':
+                   {'Name': str(package_name), 'Version': str(package_version), 'ID': str(package_id)}
+               }
+
+    r = requests.post(APP_BASE_URL + 'package', json=payload)
+
+    headers = r.headers
+    status_code = r.status_code
+    response = r.json()  # in dictionary form
+
+
 # TEST RATE PACKAGE
+# tested
 def ping_rate_package_by_id(package_id):
     r = requests.get(APP_BASE_URL + 'package/' + str(package_id) + '/rate')
 
@@ -91,6 +115,7 @@ def ping_rate_package_by_id(package_id):
 
 
 # TEST AUTHENTICATE
+# todo implementation if time
 def ping_authenticate(name, isAdmin, password):
     payload = {"User": {"name": str(name), "isAdmin": str(isAdmin)}, "Secret": {"password": str(password)}}
 
@@ -125,7 +150,9 @@ def ping_delete_package_by_name(package_name):
 
 if __name__ == '__main__':
     # res = ping_get_packages('^1.0', 'Underscore')
-    res = ping_get_package_by_id('lol')
-    # res = ping_post_package(package_url="hi.com", package_content="hi", package_name="lol", package_id="lol",
-    #                        package_js="", package_version="1.0.0")
-    print(res[2])
+    # res = ping_get_package_by_id(49)
+    # res = ping_rate_package_by_id('lolx')
+    #res = ping_delete_package_by_id(49)
+    ping_reset()
+    #res = ping_post_package(package_url="tt", package_content="hi", package_name="lol", package_id="lolx",
+                             #package_js="", package_version="1.0.0")

@@ -194,7 +194,7 @@ def get_package_by_id(id):
     print(id)
 
     # returns in the format Name Version Filename Url Content
-    ret_data = database_helper.get_package_by_id(id)
+    ret_data = database_helper.get_package_by_id(int(id))
 
     # take ret_data[content] with the bucket path and put that into a text file
     # read in that text file and assign that to a content variable
@@ -230,28 +230,8 @@ def update_package(id):
     # the package contents will replace the previous contents
     print(id)
 
-    print(request.data)
-
-    root_parser = reqparse.RequestParser()
-    root_parser.add_argument('metadata', type=dict)
-    root_parser.add_argument('data', type=dict)
-
-    message_parser = reqparse.RequestParser()
-    message_parser.add_argument('Name', type=str, location=('metadata',), required=True)
-    message_parser.add_argument('Version', type=str, location=('metadata',), required=True)
-    message_parser.add_argument('ID', type=str, location=('metadata',), required=True)
-
-    message_parser.add_argument('Content', type=str, location=('data',), required=False)
-    message_parser.add_argument('URL', type=str, location=('data',), required=False)
-    message_parser.add_argument('JSProgram', type=str, location=('data',), required=False)
-
-    root_args = root_parser.parse_args()
-    print(root_args)
-
     d = (str(request.data.decode('utf-8')))
-    print(d)
     data_list_dict = json.loads(d)
-    print(data_list_dict)
 
     # args = message_parser.parse_args(req=root_args)
     name = (data_list_dict['metadata']['Name'])
@@ -268,8 +248,10 @@ def update_package(id):
         filename_original=name
     )
 
-    if database_helper.get_package_by_id(p_id) is not None:
-        database_helper.update_package(name, version, p_id, url, filename=complete_text_file_path)
+    ret_dat = database_helper.get_package_by_id(p_id)
+
+    if ret_dat is not None:
+        database_helper.update_package(name, version, p_id, url, output_filename_txt)
         Update.update_file(
             bucket_name=MAIN_BUCKET_NAME,
             object_name=output_filename_txt,
@@ -279,20 +261,23 @@ def update_package(id):
     else:
         status_code = 400
 
-    # response 200 for success
-    # response 400 for a malformed request: no such package
-
     return Response(status=status_code)
 
 
 @app.route('/package/<id>', methods=['DELETE'])
 def delete_package_by_id(id):
     print(id)
-    database_helper.delete_package_by_id(id)
+    filename = database_helper.delete_package_by_id(id)
     # TODO: Need name of the package for GCP
-    # response 200 for success
-    # response 400 for a malformed request: no such package
-    return render_template('page.html', endpoint=('DELETE: package/' + str(id)))
+    if filename is not None:
+        Delete.delete_object(
+            bucket_name=MAIN_BUCKET_NAME,
+            object_name=filename
+        )
+        status_code = 200
+    else:
+        status_code = 400
+    return Response(status=status_code)
 
 
 @app.route('/package', methods=['POST'])
@@ -301,9 +286,7 @@ def post_package():
     print(header)
 
     d = (str(request.data.decode('utf-8')))
-    print(d)
     data_list_dict = json.loads(d)
-    print(data_list_dict)
 
     # args = message_parser.parse_args(req=root_args)
     name = (data_list_dict['metadata']['Name'])
@@ -320,10 +303,11 @@ def post_package():
             ingestion = 0
 
     if ingestion == 0: #upload content string
-        current_path = os.getcwd()
+        '''current_path = os.getcwd()
         encoded_text_file = (data_list_dict['data']['Content'])
         complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file,
-                                                            text_file_folder_path=current_path)
+                                                            text_file_folder_path=current_path,
+                                                            filename_original=)'''
 
         # todo link the filename field to the bucket/filename
         # todo add a column in the database for permissions/security
@@ -337,9 +321,13 @@ def post_package():
             filename_original=name
         )
 
+        # todo this doesn't make sense with what jamie posted but it doesn't make sense otherwise too
+
+        int_id = database_helper.get_last_id()
+
         conn = database_helper.mysql_connect()
-        if database_helper.get_package_by_id(p_id) is None:
-            database_helper.post_package(name, version, p_id, url, complete_zip_file_path)
+        if database_helper.get_package_by_id(int_id + 1) is None:
+            database_helper.post_package(name, version, p_id, url, output_filename_txt)
             # Cloud Storage: Uploading file to GCP.
             Upload.upload_file(
                 source_file_local=complete_text_file_path,
@@ -350,7 +338,9 @@ def post_package():
             status_code = 403
         database_helper.mysql_close(conn)
     else:
+        print("ingesting")
         scores = mainHelper.rate(url)
+        print(scores)
         ingestible = 1
         for key, value in scores.items():
             if value < 0.5:
@@ -361,15 +351,13 @@ def post_package():
                 database_helper.post_package(name, version, p_id, url, None)
                 status_code = 201
             else:
-                status_code = 403 #todo: need value to be changed?
+                status_code = 405 #todo: need value to be changed? let's just have that mean uningestible
             database_helper.mysql_close(conn)
         else:
-            status_code = 403 #todo: need value to be changed?
+            status_code = 405 #todo: need value to be changed?
 
 
-    # if malformed request
-
-    data = {"Name": name, "Version": version, "ID": p_id}
+    data = {"Name": name, "Version": version, "ID": int_id + 1}
     r = make_response(data)
     r.mimetype = 'application/json'
     r.status_code = status_code
@@ -379,12 +367,11 @@ def post_package():
         os.remove(complete_text_file_path)
 
     return r
-    # response = Response(response=data, status=201, mimetype='application/json')
 
 
 @app.route('/package/<id>/rate', methods=['GET'])
 def rate_package_by_id(id):
-    # print(id)
+    print(id)
     # if successful rating
     data = {
         "BusFactor": 0,

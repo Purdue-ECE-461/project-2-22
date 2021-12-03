@@ -1,7 +1,7 @@
 from Actions import Delete
 from Actions import List
 
-
+#todo this deletes all contents of all the buckets
 def reset_default(main_bucket):
     # Don't delete the bucket, but the objects in the bucket
     # Get list of buckets

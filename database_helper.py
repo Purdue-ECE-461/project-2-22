@@ -73,7 +73,6 @@ def version_check(package_list, version_range):
         start_range = '>=' + split[0].strip()
         end_range = '<=' + split[1].strip()
 
-
     good_packages = []
     for package in package_list:
         print(version_range)
@@ -146,7 +145,7 @@ def get_packages(data_dict, offset):
     cur = con.cursor()
     valid_packages = []
     for d in data_dict:
-        cur.execute("SELECT Name,Version,ID from packages WHERE Name=%s", (d['Name'],))
+        cur.execute("SELECT Name,Version,INTERNAL_ID from packages WHERE Name=%s", (d['Name'],))
 
         packages = []
         for row in cur.fetchall():
@@ -169,7 +168,7 @@ def get_packages(data_dict, offset):
 def get_all_packages():
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("SELECT Name,Version,ID,URL,Filename from packages")
+    cur.execute("SELECT Name,Version,INTERNAL_ID,URL,Filename from packages")
 
     packages = []
     for row in cur.fetchall():
@@ -180,10 +179,10 @@ def get_all_packages():
     return packages
 
 
-def get_package_by_id(id):
+def get_package_by_id(p_id):
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("select Name,Version,Filename,URL from packages WHERE ID=%s", (str(id),))
+    cur.execute("select Name,Version,Filename,URL from packages WHERE ID=" + str(p_id))
     mysql_close(con)
 
     variables = []
@@ -225,8 +224,8 @@ def update_package(name, version, p_id, url, filename):
     con = mysql_connect()
     cur = con.cursor()
     cur.execute("UPDATE packages SET URL = %s, Filename = %s \
-        WHERE Name = %s AND Version = %s and ID = %s", (url, filename, name, version, p_id,))
-    insert_package_history(str(name), str(version), str(id), 'UPDATE', 'None', 0)
+        WHERE Name = %s AND Version = %s and INTERNAL_ID = %s", (url, filename, name, version, p_id,))
+    insert_package_history(str(name), str(version), str(p_id), 'UPDATE', 'None', 0)
     con.commit()
     mysql_close(con)
 
@@ -242,9 +241,12 @@ def delete_all_packages():
 def delete_package_by_id(p_id):
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("DELETE from packages where ID=%s", str(p_id))
+    cur.execute("SELECT Filename from packages where INTERNAL_ID=" + str(p_id))
+    res = cur.fetchall()
+    cur.execute("DELETE from packages where INTERNAL_ID=" + str(p_id))
     con.commit()
     mysql_close(con)
+    return res[0][0]
 
 
 def delete_package_by_name(name):
@@ -255,11 +257,44 @@ def delete_package_by_name(name):
     mysql_close(con)
 
 
+def get_filename_from_id(pid):
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT Filename from packages where INTERNAL_ID=" + str(pid))
+    ret_val = cur.fetchall()
+    mysql_close(con)
+    return ret_val[0][0]
+
+
+def get_last_id():
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT MAX(INTERNAL_ID) from packages;")
+    ret_val = cur.fetchall()
+    mysql_close(con)
+    return ret_val[0][0]
+
+
+def is_unique_package(package_name, package_version, package_id):
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT Name,Version from packages WHERE ID=%s", str(package_id))
+    ret_val = cur.fetchall()
+    name, version = ret_val[0]
+    if name == package_name and version == package_version:
+        ret = False
+    else:
+        ret = True
+    mysql_close(con)
+    return ret
+
+
 if __name__ == '__main__':
     # init_package_history_table()
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
     # post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
-    # print(get_package_history('testpackage'))
+    # print(delete_package_by_id(48))
+    print(is_unique_package('lol', '1.0.0', 'lol'))
 
     # print(semver.SEMVER_SPEC_VERSION)
 

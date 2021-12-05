@@ -17,7 +17,7 @@ import mainHelper
 from flask_restful import Api, Resource, reqparse, abort
 import os
 import pymysql
-from Actions import Decode, Delete, ResetDefault, Download, Upload, Update, Search
+from Actions import Delete, ResetDefault, Upload, Update, Search
 from Actions import Decode
 from Actions import Download
 import shutil
@@ -308,41 +308,35 @@ def post_package():
         if key == 'Content':
             ingestion = 0
 
-    if ingestion == 0:  # upload content string
-        '''current_path = os.getcwd()
-        encoded_text_file = (data_list_dict['data']['Content'])
-        complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file,
-                                                            text_file_folder_path=current_path,
-                                                            filename_original=)'''
-
+    if ingestion == 0:
         # todo link the filename field to the bucket/filename
         # todo add a column in the database for permissions/security
 
         # Decode.py: Encoded string to text file
         # current_path = os.getcwd()
-        current_path = tempfile.mkdtemp()
-        encoded_text_file = (data_list_dict['data']['Content'])
-        complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
-            encoded_text=encoded_text_file,
-            text_file_folder_path=current_path,
-            filename_original=name
-        )
+        # current_path = tempfile.mkdtemp()
+        encoded_text_to_gcp = (data_list_dict['data']['Content'])
+        # complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
+        #     encoded_text=encoded_text_file,
+        #     text_file_folder_path=current_path,
+        #     filename_original=name
+        # )
 
         int_id = database_helper.get_last_id() if database_helper.get_last_id() is not None else 0
 
         conn = database_helper.mysql_connect()
         print(database_helper.is_unique_package(name, version, p_id))
         if database_helper.is_unique_package(name, version, p_id):
-            database_helper.post_package(name, version, p_id, url, output_filename_txt)
+            database_helper.post_package(name, version, p_id, url, name + ".txt")
             # Cloud Storage: Uploading file to GCP.
             Upload.upload_file(
-                source_file_local=complete_text_file_path,
-                destination_bucket_gcp=MAIN_BUCKET_NAME,
+                filename_to_gcp=name,
+                encoded_zipfile_string=encoded_text_to_gcp,
+                destination_bucket_gcp=MAIN_BUCKET_NAME
             )
             status_code = 201
         else:
             status_code = 403
-        shutil.rmtree(complete_text_file_path)
     else:
         print("ingesting")
         scores = mainHelper.rate(url)
@@ -366,10 +360,6 @@ def post_package():
     r = make_response(data)
     r.mimetype = 'application/json'
     r.status_code = status_code
-
-    # Remove file when successfully uploaded
-    if ingestion == 0:
-        os.remove(complete_text_file_path)
 
     return r
 

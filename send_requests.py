@@ -1,8 +1,8 @@
 import requests
 import database_helper
 
-APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-# APP_BASE_URL = r'http://127.0.0.1:8080/'
+# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -154,8 +154,8 @@ def ping_delete_package_by_name(package_name):
 
 if __name__ == '__main__':
     # res = ping_get_packages('^1.0', 'Underscore')
-    # res = ping_get_package_by_id(49)
-    res = ping_post_package('test_tmp', '3.1.2', '67', 'https://github.com/lodash/lodash', '', 'cloudy with a chance of meatballs')
+    res = ping_get_package_by_id(62)
+    # res = ping_post_package('test_upload', '3.1.2', '67', 'https://github.com/lodash/lodash', '', 'cloudy with a chance of meatballs')
     print(res)
     # p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
     # res = ping_rate_package_by_id(p_id)

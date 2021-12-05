@@ -352,9 +352,9 @@ def get_package_id(package_name, package_version, package_id):
 if __name__ == '__main__':
     # init_package_history_table()
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
-    # post_package('testpackage', '1.1.1', '4', 'test.com', 'test.txt')
     # print(is_unique_package('testagain', '1.0.0', 'lolx'))
-    get_all_packages()
+    print(get_package_by_id(62))
+    print(get_all_packages())
     # print(semver.SEMVER_SPEC_VERSION)
 
     '''import requests

@@ -200,14 +200,22 @@ def get_package_by_id(id):
     # returns in the format Name Version Filename Url Content
     ret_data = database_helper.get_package_by_id(int(id))
 
+    if ret_data is None:
+        return Response(status=400)
+
     # take ret_data[content] with the bucket path and put that into a text file
     # read in that text file and assign that to a content variable
 
-    Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Filename'],
-                           destination_folder_local=DEST_FOLDER)
+    '''Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Filename'],
+                           destination_folder_local=DEST_FOLDER)'''
+
+    lines = Download.download_text(filename_to_gcp=ret_data['Filename'], destination_bucket_gcp=MAIN_BUCKET_NAME)
+
+    print(lines)
+
     # read in text file
-    with open(DEST_FOLDER + '/' + ret_data['Filename']) as f:
-        lines = f.readlines()
+    # with open(DEST_FOLDER + '/test.txt') as f:
+    #    lines = f.readlines()
 
     data = {
         "metadata": {
@@ -216,7 +224,7 @@ def get_package_by_id(id):
             "ID": str(id)
         },
         "data": {
-            "Content": str(lines[0]),
+            "Content": str(lines),
             "URL": ret_data['URL'],
             "JSProgram": "None"
         }

@@ -84,7 +84,10 @@ def ping_post_package(package_name, package_version, package_id, package_url, pa
 
     headers = r.headers
     status_code = r.status_code
-    response = r.json()  # in dictionary form
+    if status_code == 201:
+        response = r.json()  # in dictionary form
+    else:
+        response = None
 
     return headers, status_code, response
 

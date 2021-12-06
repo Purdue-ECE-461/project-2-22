@@ -2,12 +2,11 @@ import database_helper
 import send_requests
 
 
-def test_post_rate():
+def test_no_ingestion():
     res = send_requests.ping_post_package('Cloudier', '3.1.2', '68', 'https://github.com/cloudinary/cloudinary_npm', '',
                                           'cloudy with a chance of meatballs')
-    p_id = res[2]['ID']
-    res = send_requests.ping_rate_package_by_id(p_id)
-    assert res[2]['BusFactor'] == 0.5
+    code = res[1]
+    assert code == 405
 
 
 def test_get_packages():

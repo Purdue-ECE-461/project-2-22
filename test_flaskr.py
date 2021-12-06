@@ -1,13 +1,14 @@
-import database_helper
 import send_requests
 
 
-def test_no_ingestion():
+def test_no_ingestion_rate():
     res = send_requests.ping_post_package('Cloudier', '3.1.2', '68', 'https://github.com/cloudinary/cloudinary_npm', '',
                                           'cloudy with a chance of meatballs')
     code = res[1]
-    resp = res[2]['ID']
-    assert resp == 66
+    p_id = res[2]['ID']
+
+    res = send_requests.ping_rate_package_by_id(p_id)
+    assert res[2]['BusFactor'] == 0.5
 
 
 def test_get_packages():

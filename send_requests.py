@@ -1,5 +1,4 @@
 import requests
-import database_helper
 
 APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
 # APP_BASE_URL = r'http://127.0.0.1:8080/'
@@ -117,7 +116,10 @@ def ping_rate_package_by_id(package_id):
 
     headers = r.headers
     status_code = r.status_code
-    response = r.json()
+    if status_code != 201:
+        response = None
+    else:
+        response = r.json()
 
     return headers, status_code, response
 

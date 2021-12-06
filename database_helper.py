@@ -353,7 +353,7 @@ if __name__ == '__main__':
     # init_package_history_table()
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
     # print(is_unique_package('testagain', '1.0.0', 'lolx'))
-    print(get_package_by_id(62))
+    print(get_package_by_id(67))
     print(get_all_packages())
     # print(semver.SEMVER_SPEC_VERSION)
 

@@ -314,8 +314,6 @@ def post_package():
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)
 
-    int_id = database_helper.get_last_id() if database_helper.get_last_id() is not None else 0
-
     ingestion = 1
     for key, value in data_list_dict['data'].items():
         if key == 'Content':
@@ -371,7 +369,9 @@ def post_package():
     if status_code != 201:
         return Response(status=status_code)
 
-    data = {"Name": name, "Version": version, "ID": int_id + 1}
+    int_id = database_helper.get_last_id() if database_helper.get_last_id() is not None else 0
+
+    data = {"Name": name, "Version": version, "ID": int_id}
     r = make_response(data)
     r.mimetype = 'application/json'
     r.status_code = status_code
@@ -399,6 +399,8 @@ def rate_package_by_id(id):
     if variables is None:
         return Response(status=400)
 
+    status_code = 201
+
     if variables['URL'] == "":  # no URL, get from package.json
         # TODO: file = decode(variables['Filename'] ---> Santiago's code
         # It should be something like
@@ -410,6 +412,7 @@ def rate_package_by_id(id):
         data = mainHelper.rate(variables['URL'])
 
     r = make_response(data)
+    r.status_code = status_code
     r.mimetype = 'application/json'
     # TODO: return 400 for no such package; return 500 for failure in rating
     return r

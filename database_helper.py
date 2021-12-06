@@ -318,7 +318,7 @@ def get_last_id():
 def is_unique_package(package_name, package_version, package_id):
     con = mysql_connect()
     cur = con.cursor()
-    cur.execute("SELECT * from packages WHERE ID=%s AND Name=%s AND Version=%s", (str(package_id), str(package_name), str(package_version)))
+    cur.execute("SELECT * from packages WHERE Name=%s AND Version=%s", (str(package_name), str(package_version)))
     ret_val = cur.fetchall()
     mysql_close(con)
 
@@ -388,6 +388,7 @@ if __name__ == '__main__':
     # print(semver.SEMVER_SPEC_VERSION)
 
     delete_package_by_name('testing_offsets')
+    print(is_unique_package('test_rate', '1.0.0', '78'))
 
     # print(get_auto_increment())
 

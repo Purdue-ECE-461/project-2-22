@@ -6,8 +6,8 @@ def test_no_ingestion():
     res = send_requests.ping_post_package('Cloudier', '3.1.2', '68', 'https://github.com/cloudinary/cloudinary_npm', '',
                                           'cloudy with a chance of meatballs')
     code = res[1]
-    resp = res[2]
-    assert resp == None
+    resp = res[2]['ID']
+    assert resp == 66
 
 
 def test_get_packages():

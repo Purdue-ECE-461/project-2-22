@@ -22,7 +22,7 @@ def clone_module(url, module_name):
 def module_clone_readme_analyzer(module_name):
     #cwd = os.getcwd()
     #directory = os.path.join(cwd, module_name)
-    directory = os.path.join("/tmp", module_name)
+    directory = os.path.join("/tmp", module_name) #comment change to push
     count = 0
     total = 0
     score = 0

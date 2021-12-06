@@ -208,8 +208,11 @@ def get_package_by_id(id):
 
     '''Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Filename'],
                            destination_folder_local=DEST_FOLDER)'''
+    if (ret_data['Filename'] is None or ret_data['Filename'] == 'None'):
+        lines = None
+    else:
 
-    lines = Download.download_text(filename_to_gcp=ret_data['Filename'], destination_bucket_gcp=MAIN_BUCKET_NAME)
+        lines = Download.download_text(filename_to_gcp=ret_data['Filename'], destination_bucket_gcp=MAIN_BUCKET_NAME)
 
     print(lines)
 
@@ -311,6 +314,8 @@ def post_package():
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)
 
+    int_id = database_helper.get_last_id() if database_helper.get_last_id() is not None else 0
+
     ingestion = 1
     for key, value in data_list_dict['data'].items():
         if key == 'Content':
@@ -329,8 +334,6 @@ def post_package():
         #     text_file_folder_path=current_path,
         #     filename_original=name
         # )
-
-        int_id = database_helper.get_last_id() if database_helper.get_last_id() is not None else 0
 
         conn = database_helper.mysql_connect()
         print(database_helper.is_unique_package(name, version, p_id))

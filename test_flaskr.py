@@ -3,7 +3,7 @@ import send_requests
 
 
 def test_post_rate():
-    res = send_requests.ping_post_package('Cloudier', '3.1.2', '68', 'https://github.com/cloudinary/cloudinary_npm', '',
+    send_requests.ping_post_package('Cloudier', '3.1.2', '68', 'https://github.com/cloudinary/cloudinary_npm', '',
                                           'cloudy with a chance of meatballs')
     p_id = (database_helper.get_package_id('Cloudier', '3.1.2', '68'))
     res = send_requests.ping_rate_package_by_id(p_id)

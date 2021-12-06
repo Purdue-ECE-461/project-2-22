@@ -385,8 +385,9 @@ def rate_package_by_id(id):
 
     if variables['URL'] == "":  # no URL, get from package.json
         # TODO: file = decode(variables['Filename'] ---> Santiago's code
+        file = Decode.decode_base64("/tmp/output.zip", variables['Filename'])
         # It should be something like
-        jsonFile = mainHelper.getPackageJson("output_file.zip")  # TODO: change input to file
+        jsonFile = mainHelper.getPackageJson(file)  # TODO: change input to file
         if jsonFile != None:
             url = mainHelper.getURL(jsonFile)
             data = mainHelper.rate(url)

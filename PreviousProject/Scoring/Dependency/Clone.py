@@ -7,21 +7,23 @@ import re
 
 def clone_module(url, module_name):
     # Check if the repo already is cloned, if not then clone
-    repo = Repo.clone_from(url, module_name)  # could maybe use giturl but we dont have that yet
+    file_path = os.path.join("/tmp/", module_name)
+    repo = Repo.clone_from(url, file_path)  # could maybe use giturl but we dont have that yet
 
     # Analyze cloned repository
-    score = module_clone_readme_analyzer(module_name)
+    score = getScore(module_name)
 
     # Remove cloned repo
-    cwd = os.getcwd()
+    cwd = "/tmp"
     directory_folder_empty = os.path.join(cwd, module_name.split("/")[0])
     rmtree(directory_folder_empty)
     return score
 
 
-def module_clone_readme_analyzer(module_name):
-    cwd = os.getcwd()
-    directory = os.path.join(cwd, module_name)
+def getScore(module_name):
+    #cwd = os.getcwd()
+    #directory = os.path.join(cwd, module_name)
+    directory = os.path.join("/tmp/", module_name) #comment change to push
     count = 0
     total = 0
     score = 0

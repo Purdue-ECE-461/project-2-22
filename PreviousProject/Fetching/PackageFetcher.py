@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from validators import url as is_valid_url
 
 from PreviousProject.Models.Package import Package
+from PreviousProject.Secrets import access_secret_version
 
 
 class PackageFetcher:
@@ -49,7 +50,8 @@ class PackageFetcher:
         )
 
         # Get Package
-        auth_token = os.environ["GITHUB_TOKEN"]
+        # auth_token = os.environ["GITHUB_TOKEN"]
+        auth_token = access_secret_version()
         auth_header = {"Authorization": "token {}".format(auth_token)}
         req = requests.get(
             github_api_url.strip(), headers=auth_header

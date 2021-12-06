@@ -84,9 +84,9 @@ def ping_post_package(package_name, package_version, package_id, package_url, pa
 
     headers = r.headers
     status_code = r.status_code
-    response = r.json()  # in dictionary form
+    # response = r.json()  # in dictionary form
 
-    return headers, status_code, response
+    return headers, status_code
 
 
 # TEST POST PACKAGE
@@ -102,7 +102,9 @@ def ping_post_package_no_content(package_name, package_version, package_id, pack
 
     headers = r.headers
     status_code = r.status_code
-    response = r.json()  # in dictionary form
+    # response = r.json()  # in dictionary form
+
+    return headers, status_code
 
 
 # TEST RATE PACKAGE
@@ -154,8 +156,8 @@ def ping_delete_package_by_name(package_name):
 
 if __name__ == '__main__':
     # res = ping_get_packages('^1.0', 'Underscore')
-    res = ping_get_package_by_id(62)
-    # res = ping_post_package('test_upload', '3.1.2', '67', 'https://github.com/lodash/lodash', '', 'cloudy with a chance of meatballs')
+    # res = ping_get_package_by_id(62)
+    res = ping_post_package_no_content('test_upload', '3.1.2', '67', 'https://github.com/jonschlinkert/even', '')
     print(res)
     # p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
     # res = ping_rate_package_by_id(p_id)

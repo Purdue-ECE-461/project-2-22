@@ -351,6 +351,7 @@ def post_package():
         print(scores)
         ingestible = 1
         for key, value in scores.items():
+            print(str(key) + ': ' + str(value))
             if value < 0.5:
                 ingestible = 0
         if ingestible == 1:
@@ -363,6 +364,9 @@ def post_package():
             database_helper.mysql_close(conn)
         else:
             status_code = 405  # todo: need value to be changed?
+
+    if status_code != 201:
+        return Response(status=status_code)
 
     data = {"Name": name, "Version": version, "ID": int_id + 1}
     r = make_response(data)

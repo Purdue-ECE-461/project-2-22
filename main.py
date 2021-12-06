@@ -25,29 +25,11 @@ import tempfile
 
 DEST_FOLDER = 'downloaded_files'
 
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ece-461-project-2-22-44eb5eb60671.json"
-
-# firebase = firebase.FirebaseApplication('https://ece-461-project-2-22-default-rtdb.firebaseio.com/', None)
-data = {
-    'Name': 'Alia Ahmed'
-}
-
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = str(os.urandom(48))
-jwt = JWTManager(app)
-firebase_request_adapter = requests.Request()
-
-# random key is needed to keep the connection secure to the server
-app.config['SECRET_KEY'] = 'os.urandom(48)'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 api = Api(app)
-# db.init_app(app)
-# db.create_all(app=app)
 
 ROWS_PER_PAGE = 5
-# Bucket name for GCP
 MAIN_BUCKET_NAME = "acme_corporation_general"
 
 
@@ -305,6 +287,9 @@ def post_package():
     d = (str(request.data.decode('utf-8')))
     data_list_dict = json.loads(d)
 
+    int_id = database_helper.get_auto_increment()
+    print("Internal ID (auto increment): " + str(int_id))
+
     # args = message_parser.parse_args(req=root_args)
     name = (data_list_dict['metadata']['Name'])
     version = (data_list_dict['metadata']['Version'])
@@ -333,13 +318,12 @@ def post_package():
         #     filename_original=name
         # )
 
-        conn = database_helper.mysql_connect()
         print(database_helper.is_unique_package(name, version, p_id))
         if database_helper.is_unique_package(name, version, p_id):
-            database_helper.post_package(name, version, p_id, url, name + ".txt")
+            database_helper.post_package(name, version, p_id, url, (name + str(int_id) + ".txt"))
             # Cloud Storage: Uploading file to GCP.
             Upload.upload_file(
-                filename_to_gcp=name,
+                filename_to_gcp=(name + str(int_id)),
                 encoded_zipfile_string=encoded_text_to_gcp,
                 destination_bucket_gcp=MAIN_BUCKET_NAME
             )
@@ -368,8 +352,6 @@ def post_package():
 
     if status_code != 201:
         return Response(status=status_code)
-
-    int_id = database_helper.get_last_id() if database_helper.get_last_id() is not None else 0
 
     data = {"Name": name, "Version": version, "ID": int_id}
     r = make_response(data)
@@ -492,16 +474,20 @@ def get_package_by_name(name):
 @app.route('/package/byName/<name>', methods=['DELETE'])
 def delete_package_by_name(name):
     print(name)
+    filenames = database_helper.get_file_names(name)
     database_helper.delete_package_by_name(name)
     # Delete file from GCP
-    filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, name)
-    if filename_in_gcp is not None:
-        Delete.delete_object(
-            bucket_name=MAIN_BUCKET_NAME,
-            object_name=filename_in_gcp
-        )
-    else:
-        print("File not found on GCP")
+
+    for fname in filenames:
+        filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
+        print(filename_in_gcp.name)
+        if filename_in_gcp is not None:
+            Delete.delete_object(
+                bucket_name=MAIN_BUCKET_NAME,
+                object_name=filename_in_gcp.name
+            )
+        else:
+            print("File not found on GCP")
     # return 400 for no such package; return 200 for success
     return render_template('page.html', endpoint=('DELETE: package/byName/' + str(name)))
 

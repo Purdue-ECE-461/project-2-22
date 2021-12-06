@@ -11,6 +11,8 @@ db_password = os.environ.get('CLOUD_SQL_PASSWORD')
 db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME')
 db_connection_name = os.environ.get('CLOUD_SQL_CONNECTION_NAME')
 
+ROWS_PER_PAGE = 5
+
 
 def mysql_close(cnx):
     cnx.close()
@@ -144,6 +146,9 @@ def get_packages(data_dict, offset):
     if offset is None:
         offset = 1
 
+    print(offset)
+    offset = int(offset)
+
     cur = con.cursor()
     valid_packages = []
     for d in data_dict:
@@ -158,9 +163,9 @@ def get_packages(data_dict, offset):
             if j_pack not in valid_packages:
                 valid_packages.append(j_pack)
 
-    if len(valid_packages) > 10:
-        valid_packages = valid_packages[(offset - 1) * 10: (
-            offset * 10 if len(valid_packages) >= offset * 10 else len(valid_packages))]
+    if len(valid_packages) > ROWS_PER_PAGE:
+        valid_packages = valid_packages[(offset - 1) * ROWS_PER_PAGE: (
+            offset * ROWS_PER_PAGE if len(valid_packages) >= offset * ROWS_PER_PAGE else len(valid_packages))]
 
     mysql_close(con)
 
@@ -349,13 +354,42 @@ def get_package_id(package_name, package_version, package_id):
         return None
 
 
+def get_auto_increment():
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'demo' AND TABLE_NAME = "
+                "'packages';")
+    ret_val = cur.fetchall()
+    mysql_close(con)
+
+    return ret_val[0][0]
+
+
+def get_file_names(package_name):
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT Filename FROM packages where Name=%s;", str(package_name))
+    res = cur.fetchall()
+    mysql_close(con)
+    ret_val = []
+    for file in res:
+        ret_val.append(file[0])
+    return ret_val
+
+
+
+
 if __name__ == '__main__':
     # init_package_history_table()
     # insert_package_history('testpackage', '1.1.1', '4', 'CREATE', 'Alia', 0)
     # print(is_unique_package('testagain', '1.0.0', 'lolx'))
-    print(get_package_by_id(67))
-    print(get_all_packages())
+    # print(get_package_by_id(67))
+    # print(get_all_packages())
     # print(semver.SEMVER_SPEC_VERSION)
+
+    delete_package_by_name('testing_offsets')
+
+    # print(get_auto_increment())
 
     '''import requests
 

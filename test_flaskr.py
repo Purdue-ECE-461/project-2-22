@@ -13,7 +13,7 @@ def test_post_rate():
 def test_get_packages():
     resp = send_requests.ping_get_packages('^3.1.2', 'Cloudier')
     packages = len(resp[2])
-    if len(packages) > 0:
+    if packages > 0:
         assert True
     else:
         assert False

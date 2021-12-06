@@ -84,9 +84,9 @@ def ping_post_package(package_name, package_version, package_id, package_url, pa
 
     headers = r.headers
     status_code = r.status_code
-    # response = r.json()  # in dictionary form
+    response = r.json()  # in dictionary form
 
-    return headers, status_code
+    return headers, status_code, response
 
 
 # TEST POST PACKAGE

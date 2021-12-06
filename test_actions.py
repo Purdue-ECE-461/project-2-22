@@ -34,7 +34,7 @@ def test_upload_download():
 
     Delete.delete_object(bucket_name=BUCKET, object_name='test.txt')
 
-    assert (lines == upload_str)
+    assert (data == upload_str)
 
 if __name__ == '__main__':
     # make a string

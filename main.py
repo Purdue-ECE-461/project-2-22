@@ -381,7 +381,7 @@ def rate_package_by_id(id):
     if variables is None:
         return Response(status=400)
 
-    status_code = 201
+    status_code = 200
 
     if variables['URL'] == "":  # no URL, get from package.json
         # TODO: file = decode(variables['Filename'] ---> Santiago's code

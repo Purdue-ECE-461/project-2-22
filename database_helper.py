@@ -17,7 +17,7 @@ def mysql_close(cnx):
 
 
 def mysql_connect():
-    if os.environ.get('GAE_ENV') == 'standard':
+    if os.environ.get('GAE_ENV') == 'standard' or True:
         # If deployed, use the local socket interface for accessing Cloud SQL
         unix_socket = '/cloudsql/{}'.format(db_connection_name)
         cnx = pymysql.connect(user=db_user, password=db_password,

@@ -16,6 +16,9 @@ def getURL(file): #file = name of file in directory
     data = json.load(f)
     f.close()
 
+    if 'github.com' in data['homepage']:
+        return data['homepage']
+
     for key, value in data.items():
         if key == 'repository':
             if isinstance(value, dict):
@@ -24,10 +27,7 @@ def getURL(file): #file = name of file in directory
                         return value1
             else:
                 return 'https://github.com/' + value
-        elif key == 'homepage':
-            return key
-            if 'github.com' in value:
-                return value
+
     return None
 
 

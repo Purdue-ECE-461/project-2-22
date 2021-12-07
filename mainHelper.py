@@ -27,6 +27,7 @@ def getURL(file): #file = name of file in directory
         elif key == 'homepage':
             if 'github.com' in value:
                 return value
+    return None
 
 
 def rate(url):

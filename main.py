@@ -300,11 +300,11 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
 
     # args = message_parser.parse_args(req=root_args)
     if name == None:
+        return "name is none"
         name = (data_list_dict['metadata']['Name'])
         version = (data_list_dict['metadata']['Version'])
         p_id = (data_list_dict['metadata']['ID'])
         url = (data_list_dict['data']['URL'])
-        content = (data_list_dict['data']['Content'])
 
 
     # if package exists already: return 403 code
@@ -324,6 +324,9 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         # current_path = tempfile.mkdtemp()
 
         #encoded_text_to_gcp = (data_list_dict['data']['Content'])
+        if name == None:
+            content = (data_list_dict['data']['Content'])
+
         encoded_text_to_gcp = content
 
         # complete_text_file_path, output_filename_txt = Decode.string_to_text_file(

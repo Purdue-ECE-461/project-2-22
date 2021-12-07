@@ -99,10 +99,10 @@ def start():
 
     select = request.form.get('requestType')
     if select == "list":
-        #if id == "":
-        #    return get_packages()
-        #else:
-        return get_package_by_id(id)
+        if id == "":
+            return get_packages()
+        else:
+            return get_package_by_id(id)
         # get packages
     elif select == "upload":
         return post_package()

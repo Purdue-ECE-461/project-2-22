@@ -18,7 +18,7 @@ def getURL(file): #file = name of file in directory
 
     for key, value in data.items():
         if key == 'repository':
-            if value.type() == dict:
+            if isinstance(value, dict):
                 for key1, value1 in value.items():
                     if key1 == 'url':
                         return value1

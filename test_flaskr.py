@@ -1,7 +1,7 @@
 import send_requests
 
 # WILL BE ABLE TO TEST THIS AFTER REDEPLOYING
-'''
+
 def test_rate():
     res = send_requests.ping_post_package('test_rate', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                                           '')
@@ -16,7 +16,6 @@ def test_rate():
     # send_requests.ping_delete_package_by_id(p_id)
 
     assert res[2]['BusFactor'] == 0.5
-'''
 
 
 def test_no_ingestion():

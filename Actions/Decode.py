@@ -10,7 +10,13 @@ def encode_zip(filename):
 
 
 def decode_base64(output_zip, string_to_decode):
+    print('String Length: ' + str(len(string_to_decode)))
+    if len(string_to_decode) % 4 != 0:
+        string_to_decode = string_to_decode + (len(string_to_decode) % 4) * "="
     decoded = base64.b64decode(string_to_decode)
+    print('String Length: ' + str(len(string_to_decode)))
+
+    print('String Length: ' + str(len(string_to_decode)))
     with open(output_zip, 'wb') as f:
         f.write(decoded)
 

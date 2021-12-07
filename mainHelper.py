@@ -66,7 +66,8 @@ def rate(url):
 
 
 if __name__ == "__main__":
-    file = getPackageJson("output_file.zip")
+    '''file = getPackageJson("output_file.zip")
     if file != None:
         url = getURL(file)
-        rate(url)
+        rate(url)'''
+    print(rate('https://github.com/jonschlinkert/even'))

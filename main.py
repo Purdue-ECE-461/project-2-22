@@ -385,7 +385,9 @@ def rate_package_by_id(id):
 
     if variables['URL'] == "":  # no URL, get from package.json
         # TODO: file = decode(variables['Filename'] ---> Santiago's code
-        file = Decode.decode_base64("/tmp/output.zip", variables['Filename'])
+        print(variables['Filename'])
+        content_string = Download.download_text(variables['Filename'], MAIN_BUCKET_NAME)
+        file = Decode.decode_base64("/tmp/output.zip", content_string)
         # It should be something like
         jsonFile = mainHelper.getPackageJson(file)  # TODO: change input to file
         if jsonFile != None:
@@ -476,6 +478,7 @@ def get_package_by_name(name):
 def delete_package_by_name(name):
     print(name)
     filenames = database_helper.get_file_names(name)
+    print(filenames)
     database_helper.delete_package_by_name(name)
     # Delete file from GCP
 

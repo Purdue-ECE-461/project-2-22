@@ -1,4 +1,6 @@
 import send_requests
+from Actions import Decode
+
 
 # WILL BE ABLE TO TEST THIS AFTER REDEPLOYING
 
@@ -6,7 +8,7 @@ def test_rate():
     res = send_requests.ping_post_package('Cloudier', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                                           '')
     p_id = res[2]['ID']
-    
+
     print(res)
 
     print(p_id)
@@ -15,9 +17,24 @@ def test_rate():
 
     print(res)
 
-    # send_requests.ping_delete_package_by_id(p_id)
-
     assert res[2]['BusFactor'] == 0.5
+
+
+def test_rate_content_string():
+    content = (Decode.encode_zip('express-master.zip'))
+    '''res = send_requests.ping_post_package('Cloudier', '5.0.0', '78', '', '',
+                                          str(content))
+    p_id = res[2]['ID']
+
+    print(res)
+
+    print(p_id)'''
+
+    res = send_requests.ping_rate_package_by_id(160)
+
+    print(res)
+
+    assert res[2]['RampUp'] == 1
 
 
 def test_no_ingestion():
@@ -52,9 +69,7 @@ def test_get_package_history():
     res = send_requests.ping_get_package_by_name('Cloudier')
 
     assert res[2][-1]['PackageMetadata']['Name'] == 'Cloudier'
-    assert res[2][-1]['Action'] == 'Delete'
-
-
+    assert res[2][-1]['Action'] == 'DELETE'
 
 
 def test_run():

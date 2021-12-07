@@ -411,9 +411,9 @@ if __name__ == '__main__':
     # delete_package_by_name('testing_offsets')
     # print(is_unique_package('test_rate', '1.0.0', '78'))
 
-    print(get_name_version_from_id(98))
+    # print(get_name_version_from_id(98))
 
-    # print(get_auto_increment())
+    print(get_auto_increment())
 
     '''import requests
 

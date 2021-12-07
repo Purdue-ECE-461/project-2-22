@@ -288,8 +288,11 @@ def delete_package_by_id(id):
 
 @app.route('/package', methods=['POST'])
 def post_package(name=None, content=None, version=None, url=None, jsprogram=None):
-    header = request.headers.get('X-Authorization')
-    print(header)
+    #these variables are None if the requests are done via postman, they are not None if done by front end
+
+    if name == None:
+        header = request.headers.get('X-Authorization')
+        print(header)
 
     if name == None:
         d = (str(request.data.decode('utf-8')))
@@ -405,9 +408,11 @@ def rate_package_by_id(id):
         # TODO: file = decode(variables['Filename'] ---> Santiago's code
         print(variables['Filename'])
         content_string = Download.download_text(variables['Filename'], MAIN_BUCKET_NAME)
-        file = Decode.decode_base64("/tmp/output.zip", content_string)
+        #file = Decode.decode_base64("/tmp/output.zip", content_string)
+        Decode.decode_base64("/tmp/output.zip", content_string)
         # It should be something like
-        jsonFile = mainHelper.getPackageJson(file)  # TODO: change input to file
+        #jsonFile = mainHelper.getPackageJson(file)  # TODO: change input to file
+        jsonFile = mainHelper.getPackageJson("/tmp/output.zip")
         if jsonFile != None:
             url = mainHelper.getURL(jsonFile)
             data = mainHelper.rate(url)

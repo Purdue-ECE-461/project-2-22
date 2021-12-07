@@ -6,14 +6,16 @@ def test_rate():
     res = send_requests.ping_post_package('test_rate', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                                           '')
     p_id = res[2]['ID']
+    
+    print(res)
 
     print(p_id)
 
     res = send_requests.ping_rate_package_by_id(p_id)
 
-    print(res[2])
+    print(res)
 
-    send_requests.ping_delete_package_by_id(p_id)
+    # send_requests.ping_delete_package_by_id(p_id)
 
     assert res[2]['BusFactor'] == 0.5
 

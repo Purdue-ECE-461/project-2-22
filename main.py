@@ -299,11 +299,13 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     print("Internal ID (auto increment): " + str(int_id))
 
     # args = message_parser.parse_args(req=root_args)
+    frontEnd = 1
     if name == None:
         name = (data_list_dict['metadata']['Name'])
         version = (data_list_dict['metadata']['Version'])
         p_id = (data_list_dict['metadata']['ID'])
         url = (data_list_dict['data']['URL'])
+        frontEnd = 0
 
 
     # if package exists already: return 403 code
@@ -323,7 +325,7 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         # current_path = tempfile.mkdtemp()
 
         #encoded_text_to_gcp = (data_list_dict['data']['Content'])
-        if name == None:
+        if frontEnd == 0:
             content = (data_list_dict['data']['Content'])
 
         encoded_text_to_gcp = content

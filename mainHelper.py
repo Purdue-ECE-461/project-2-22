@@ -6,7 +6,7 @@ def getPackageJson(file): #file = zip file
         listOfFileNames = zipObj.namelist()
         for fileName in listOfFileNames:
             if fileName.endswith('package.json'):
-                zipObj.extract('package.json', path="/tmp")
+                zipObj.extract(fileName, path="/tmp")
                 return 'package.json'
     return None
 

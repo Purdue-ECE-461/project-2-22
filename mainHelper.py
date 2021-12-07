@@ -15,7 +15,18 @@ def getURL(file): #file = name of file in directory
     f = open(file, )
     data = json.load(f)
     f.close()
-    return data['homepage']
+
+    for key, value in data.items():
+        if key == 'repository':
+            if value.type() == dict:
+                for key1, value1 in value.items():
+                    if key1 == 'url':
+                        return value1
+            else:
+                return 'https://github.com/' + value
+        elif key == 'homepage':
+            if 'github.com' in value:
+                return value
 
 
 def rate(url):

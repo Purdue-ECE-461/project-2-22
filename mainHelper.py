@@ -16,17 +16,17 @@ def getURL(file): #file = name of file in directory
     data = json.load(f)
     f.close()
 
-    if 'github.com' in data['homepage']:
-        return data['homepage']
-
     for key, value in data.items():
-        if key == 'repository':
+        if key == "repository":
             if isinstance(value, dict):
                 for key1, value1 in value.items():
                     if key1 == 'url':
                         return value1
             else:
                 return 'https://github.com/' + value
+        elif key == "homepage":
+            if 'github.com' in value:
+                return value
 
     return None
 

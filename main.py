@@ -291,8 +291,9 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     header = request.headers.get('X-Authorization')
     print(header)
 
-    d = (str(request.data.decode('utf-8')))
-    data_list_dict = json.loads(d)
+    if name == None:
+        d = (str(request.data.decode('utf-8')))
+        data_list_dict = json.loads(d)
 
     int_id = database_helper.get_auto_increment()
     print("Internal ID (auto increment): " + str(int_id))

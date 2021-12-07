@@ -101,7 +101,7 @@ def start():
     if select == "list":
         if id == "":
             if name == "":
-                return get_packages()
+                return get_packages(offset)
             else:
                 return get_package_by_name(name)
         else:
@@ -132,12 +132,13 @@ def start():
 
 
 @app.route('/packages', methods=['POST'])
-def get_packages():
+def get_packages(offset=None):
     try:
-        offset = request.args.get('offset')
-        print(offset)
-        header = request.headers.get('Content-Type')
-        print(header)
+        if offset == None:
+            offset = request.args.get('offset')
+            print(offset)
+            header = request.headers.get('Content-Type')
+            print(header)
 
         d = (str(request.data.decode('utf-8')))
         print(d)

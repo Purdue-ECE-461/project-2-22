@@ -121,7 +121,10 @@ def start():
         # rate stuff
     elif select == "delete":
         if id == "":
-            return delete_all_packages()
+            if name == "":
+                return delete_all_packages()
+            else:
+                return delete_package_by_name(name)
         else:
             return delete_package_by_id(id)
         # delete stuff

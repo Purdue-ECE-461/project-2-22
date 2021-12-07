@@ -90,6 +90,13 @@ def root():
 @app.route('/start', methods=['POST'])
 def start():
     id = request.form['id']
+    name = request.form['name']
+    content = request.form['content']
+    version = request.form['version']
+    url = request.form['url']
+    jsprogram = request.form['jsprogram']
+    offset = request.form['offset']
+
     select = request.form.get('requestType')
     if select == "list":
         if id == "":

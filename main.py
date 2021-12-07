@@ -90,15 +90,22 @@ def root():
 @app.route('/start', methods=['POST'])
 def start():
     id = request.form['id']
+    name = request.form['name']
+    content = request.form['content']
+    version = request.form['version']
+    url = request.form['url']
+    jsprogram = request.form['jsprogram']
+    offset = request.form['offset']
+
     select = request.form.get('requestType')
     if select == "list":
         if id == "":
             return get_packages()
         else:
-            return get_package_by_id(id)
+            return get_package_by_id(id) #works
         # get packages
     elif select == "upload":
-        return post_package()
+        return post_package(name, content, version, url, jsprogram)
         # upload stuff
     elif select == "update":
         return update_package(id)
@@ -280,21 +287,26 @@ def delete_package_by_id(id):
 
 
 @app.route('/package', methods=['POST'])
-def post_package():
+def post_package(name=None, content=None, version=None, url=None, jsprogram=None):
     header = request.headers.get('X-Authorization')
     print(header)
 
-    d = (str(request.data.decode('utf-8')))
-    data_list_dict = json.loads(d)
+    if name == None:
+        d = (str(request.data.decode('utf-8')))
+        data_list_dict = json.loads(d)
 
     int_id = database_helper.get_auto_increment()
     print("Internal ID (auto increment): " + str(int_id))
 
     # args = message_parser.parse_args(req=root_args)
-    name = (data_list_dict['metadata']['Name'])
-    version = (data_list_dict['metadata']['Version'])
-    p_id = (data_list_dict['metadata']['ID'])
-    url = (data_list_dict['data']['URL'])
+    frontEnd = 1
+    if name == None:
+        name = (data_list_dict['metadata']['Name'])
+        version = (data_list_dict['metadata']['Version'])
+        p_id = (data_list_dict['metadata']['ID'])
+        url = (data_list_dict['data']['URL'])
+        frontEnd = 0
+
 
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)
@@ -311,7 +323,13 @@ def post_package():
         # Decode.py: Encoded string to text file
         # current_path = os.getcwd()
         # current_path = tempfile.mkdtemp()
-        encoded_text_to_gcp = (data_list_dict['data']['Content'])
+
+        #encoded_text_to_gcp = (data_list_dict['data']['Content'])
+        if frontEnd == 0:
+            content = (data_list_dict['data']['Content'])
+
+        encoded_text_to_gcp = content
+
         # complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
         #     encoded_text=encoded_text_file,
         #     text_file_folder_path=current_path,

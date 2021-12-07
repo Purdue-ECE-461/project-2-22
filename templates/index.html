@@ -37,7 +37,11 @@
   <h1>Private and Public Module Registry Handler</h1>
 
 <!--  <h2>{{ endpoint }}</h2>-->
-  <img src="https://marcom.purdue.edu/app/uploads/2020/01/3_UniversityLogo_Stacked.png" alt="marcom.purdue.edu">
+  <img src="https://www.gannett-cdn.com/-mm-/b90380d7a8f70b9eb33ecef39b3cf96e0d3752d6/c=102-265-844-684/local/-/media/2015/06/29/Indianapolis/Indianapolis/635711681144351643-PrestoLogo-PurdueTrain.jpg?width=660&height=373&fit=crop&format=pjpg&auto=webp" alt="jconline.com">
+
+  <br>
+  <br>
+  <br>
 
   <center>
     <table>
@@ -108,18 +112,18 @@
   <br>
   <form action="/start" method="post">
     <select name="requestType">
-      <option value="List">list</option>
-      <option value="Upload">upload</option>
-      <option value="Update">update</option>
-      <option value="Rate">rate</option>
-      <option value="Delete">delete</option>
+      <option value="list">List</option>
+      <option value="upload">Upload</option>
+      <option value="update">Update</option>
+      <option value="rate">Rate</option>
+      <option value="delete">Delete</option>
     </select> <br>
     Id: <input type="number" name="id"> <br>
-    Name: <input type="number" name="name"> <br>
-    Content: <input type="number" name="content"> <br>
-    Version: <input type="number" name="version"> <br>
-    URL: <input type="number" name="url"> <br>
-    JSProgram: <input type="number" name="jsprogram"> <br>
+    Name: <input type="text" name="name"> <br>
+    Content: <input type="text" name="content"> <br>
+    Version: <input type="text" name="version"> <br>
+    URL: <input type="text" name="url"> <br>
+    JSProgram: <input type="text" name="jsprogram"> <br>
     Offset: <input type="number" name="offset"> <br>
     <input type="submit" name= "submit" value="Submit" />
   </form>
@@ -128,10 +132,13 @@
   <br>
   <br>
 
-  <h2>Last 10 visits</h2>
-  {% for time in times %}
-    <p>{{ time }}</p>
-  {% endfor %}
+  <img src="https://marcom.purdue.edu/app/uploads/2020/01/2_UniversityLogo_Horizontal.png" alt="marcom.purdue.edu"> <br>
+
+
+<!--  <h2>Last 10 visits</h2>-->
+<!--  {% for time in times %}-->
+<!--    <p>{{ time }}</p>-->
+<!--  {% endfor %}-->
 
   <button id="sign-in" hidden=false>Sign In</button>
 

@@ -309,6 +309,8 @@ def delete_package_by_id(p_id):
 
 
 def delete_package_by_name(name):
+    insert_package_history(str(name), str('ALL'), str('ALL'), 'DELETE', 'None', 0)
+
     con = mysql_connect()
     cur = con.cursor()
     cur.execute("DELETE from packages where NAME=%s", str(name))

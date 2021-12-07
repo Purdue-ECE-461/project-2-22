@@ -128,6 +128,19 @@ def get_package_history(name):
     return ret_val
 
 
+def get_name_version_from_id(p_id):
+    con = mysql_connect()
+    cur = con.cursor()
+
+    cur.execute("SELECT Name, Version FROM packages WHERE INTERNAL_ID=" + str(p_id))
+
+    ret_val = cur.fetchall()
+
+    mysql_close(con)
+
+    return ret_val[0]
+
+
 def post_package(name, version, p_id, url, filename):
     con = mysql_connect()
     cur = con.cursor()
@@ -276,6 +289,9 @@ def delete_all_packages():
 
 
 def delete_package_by_id(p_id):
+
+    name, version = get_name_version_from_id(p_id)
+
     con = mysql_connect()
     cur = con.cursor()
     cur.execute("SELECT Filename from packages where INTERNAL_ID=" + str(p_id))
@@ -283,6 +299,9 @@ def delete_package_by_id(p_id):
     cur.execute("DELETE from packages where INTERNAL_ID=" + str(p_id))
     con.commit()
     mysql_close(con)
+
+    insert_package_history(str(name), str(version), str(p_id), 'DELETE', 'None', 0)
+
     if len(res) > 0:
         return res[0][0]
     else:
@@ -387,8 +406,10 @@ if __name__ == '__main__':
     # print(get_all_packages())
     # print(semver.SEMVER_SPEC_VERSION)
 
-    delete_package_by_name('testing_offsets')
-    print(is_unique_package('test_rate', '1.0.0', '78'))
+    # delete_package_by_name('testing_offsets')
+    # print(is_unique_package('test_rate', '1.0.0', '78'))
+
+    print(get_name_version_from_id(98))
 
     # print(get_auto_increment())
 

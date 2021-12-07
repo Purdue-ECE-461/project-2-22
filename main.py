@@ -426,7 +426,7 @@ def rate_package_by_id(id):
                 return url
                 data = mainHelper.rate(url)
             else:
-                "url error"
+                return "url error"
     else:  # use URL
         data = mainHelper.rate(variables['URL'])
 

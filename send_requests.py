@@ -164,6 +164,7 @@ if __name__ == '__main__':
     # res = ping_get_package_by_id(64)
 
     # p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
-    res = ping_get_package_by_name('test_tmp')
-    print(res)
+    res = ping_get_package_by_name('Cloudier')
+    print(res[2][-1]['PackageMetadata']['Name'])
+    print(res[2][-1]['Action'])
 

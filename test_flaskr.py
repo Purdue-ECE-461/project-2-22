@@ -48,6 +48,15 @@ def test_delete_package_by_name():
         assert True
 
 
+def test_get_package_history():
+    res = send_requests.ping_get_package_by_name('Cloudier')
+
+    assert res[2][-1]['PackageMetadata']['Name'] == 'Cloudier'
+    assert res[2][-1]['Action'] == 'Delete'
+
+
+
+
 def test_run():
     assert True
 

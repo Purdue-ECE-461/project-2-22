@@ -100,12 +100,15 @@ def start():
     select = request.form.get('requestType')
     if select == "list":
         if id == "":
-            return get_packages()
+            if name == "":
+                return get_packages()
+            else:
+                return get_package_by_name(name)
         else:
-            return get_package_by_id(id) #works
+            return get_package_by_id(id) #WORKS CORRECTLY
         # get packages
     elif select == "upload":
-        return post_package(name, content, version, url, jsprogram)
+        return post_package(name, content, version, url, jsprogram) #DOES NOT WORK
         # upload stuff
     elif select == "update":
         return update_package(id)

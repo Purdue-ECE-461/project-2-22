@@ -300,7 +300,6 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
 
     # args = message_parser.parse_args(req=root_args)
     if name == None:
-        return "name is none"
         name = (data_list_dict['metadata']['Name'])
         version = (data_list_dict['metadata']['Version'])
         p_id = (data_list_dict['metadata']['ID'])

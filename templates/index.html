@@ -17,7 +17,7 @@
 
 <html>
 <head>
-  <title>Datastore and Firebase Auth Example</title>
+  <title>Private and Public Module Registry Handler</title>
   <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
   <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
   <script src="{{ url_for('static', filename='script.js') }}"></script>
@@ -34,9 +34,10 @@
 </head>
 <body>
 
-  <h1>Datastore and Firebase Auth Example</h1>
+  <h1>Private and Public Module Registry Handler</h1>
 
-  <h2>{{ endpoint }}</h2>
+<!--  <h2>{{ endpoint }}</h2>-->
+  <img src=”https://www.google.com/url?sa=i&url=https%3A%2F%2Fmarcom.purdue.edu%2Four-brand%2Flogo%2F&psig=AOvVaw0rPtQOgIWBA7MmlcjvQrsP&ust=1638978316293000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCJjSmZWE0vQCFQAAAAAdAAAAABAI”>
 
   <center>
     <table>
@@ -48,32 +49,47 @@
       <tr>
         <td>Get all packages</td>
         <td>List</td>
-        <td>Blank</td>
+        <td>Offset</td>
       </tr>
       <tr>
-        <td>Get single package</td>
+        <td>Get single package by ID</td>
         <td>List</td>
-        <td>Id number</td>
+        <td>ID</td>
+      </tr>
+      <tr>
+        <td>Get single package by Name</td>
+        <td>List</td>
+        <td>Name</td>
       </tr>
       <tr>
         <td>Post package</td>
         <td>Upload</td>
-        <td>Blank (for now but ???)</td>
+        <td>Name, Content, Version, URL, JSProgram</td>
+      </tr>
+      <tr>
+        <td>Ingest package</td>
+        <td>Upload</td>
+        <td>Name, Version, URL, JSProgram</td>
       </tr>
       <tr>
         <td>Update package</td>
         <td>Update</td>
-        <td>Id number</td>
+        <td>Name, Content, Version, URL, JSProgram</td>
       </tr>
       <tr>
         <td>Delete single package</td>
         <td>Delete</td>
-        <td>Blank</td>
+        <td>ID</td>
+      </tr>
+      <tr>
+        <td>Delete all versions of package</td>
+        <td>Delete</td>
+        <td>Name</td>
       </tr>
       <tr>
         <td>Rate package</td>
         <td>Rate</td>
-        <td>Id number</td>
+        <td>ID</td>
       </tr>
       <tr>
         <td>Reset (delete all packages)</td>
@@ -99,6 +115,12 @@
       <option value="delete">delete</option>
     </select>
     Id: <input type="number" name="id">
+    Name: <input type="number" name="name">
+    Content: <input type="number" name="content">
+    Version: <input type="number" name="version">
+    URL: <input type="number" name="url">
+    JSProgram: <input type="number" name="jsprogram">
+    Offset: <input type="number" name="offset">
     <input type="submit" name= "submit" value="Submit" />
   </form>
 

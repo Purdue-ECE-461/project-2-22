@@ -5,9 +5,9 @@ def getPackageJson(file): #file = zip file
     with ZipFile(file, 'r') as zipObj:
         listOfFileNames = zipObj.namelist()
         for fileName in listOfFileNames:
-            if fileName.startswith('package') & fileName.endswith('.json'):
-                zipObj.extract(fileName, path="/tmp")
-                return fileName
+            if fileName == 'package.json':
+                zipObj.extract('package.json', path="/tmp")
+                return 'package.json'
     return None
 
 

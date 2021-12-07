@@ -13,7 +13,7 @@ def test_rate():
 
     print(res[2])
 
-    # send_requests.ping_delete_package_by_id(p_id)
+    send_requests.ping_delete_package_by_id(p_id)
 
     assert res[2]['BusFactor'] == 0.5
 

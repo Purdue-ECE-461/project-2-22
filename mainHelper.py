@@ -25,7 +25,7 @@ def getURL(file): #file = name of file in directory
             else:
                 return 'https://github.com/' + value
         elif key == 'homepage':
-            if 'github.com' in value:
+            if value.contains('github.com'):
                 return value
     return None
 

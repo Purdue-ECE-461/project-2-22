@@ -423,10 +423,7 @@ def rate_package_by_id(id):
         if jsonFile != None:
             url = mainHelper.getURL('/tmp/' + jsonFile)
             if url != None:
-                return url
                 data = mainHelper.rate(url)
-            else:
-                return "url error"
     else:  # use URL
         data = mainHelper.rate(variables['URL'])
 

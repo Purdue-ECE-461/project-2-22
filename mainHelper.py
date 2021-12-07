@@ -7,7 +7,7 @@ def getPackageJson(file): #file = zip file
         for fileName in listOfFileNames:
             if fileName.endswith('package.json'):
                 zipObj.extract(fileName, path="/tmp")
-                return 'package.json'
+                return fileName
     return None
 
 
@@ -15,8 +15,6 @@ def getURL(file): #file = name of file in directory
     f = open(file, )
     data = json.load(f)
     f.close()
-
-    return data
 
     for key, value in data.items():
         if key == "repository":

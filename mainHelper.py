@@ -16,6 +16,8 @@ def getURL(file): #file = name of file in directory
     data = json.load(f)
     f.close()
 
+    return data
+
     for key, value in data.items():
         if key == "repository":
             if isinstance(value, dict):

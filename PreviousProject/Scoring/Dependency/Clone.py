@@ -34,22 +34,37 @@ def getScore(module_name):
             data = json.load(file)
 
             dep = 0
+            devDep = 0
             for key, value in data.items():
                 if key == 'dependencies':
                     dep = 1
+                if key == 'devDependencies':
+                    devDep = 1
 
-            if dep == 0:
+            if dep == 0 & devDep == 0:
                 return 0
 
-            for key, value in data["dependencies"].items():
-                p = re.compile("[~^<>]?[=]?\d+\.\d+\.?[X|x|\d+]?")
-                x = p.search(value)
-                if x is not None:
-                    count += 1
-                #    print(x.group(), value, "yes")
-                #else:
-                #    print(value, "no")
-                total += 1
+            if dep == 1:
+                for key, value in data["dependencies"].items():
+                    p = re.compile("[~^<>]?[=]?\d+\.\d+\.?[X|x|\d+]?")
+                    x = p.search(value)
+                    if x is not None:
+                        count += 1
+                    #    print(x.group(), value, "yes")
+                    #else:
+                    #    print(value, "no")
+                    total += 1
+
+            if devDep == 1:
+                for key, value in data["devDependencies"].items():
+                    p = re.compile("[~^<>]?[=]?\d+\.\d+\.?[X|x|\d+]?")
+                    x = p.search(value)
+                    if x is not None:
+                        count += 1
+                    #    print(x.group(), value, "yes")
+                    #else:
+                    #    print(value, "no")
+                    total += 1
             score = count/total
     #print(score)
     return score

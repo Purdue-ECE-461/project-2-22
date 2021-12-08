@@ -426,7 +426,7 @@ def rate_package_by_id(id):
             url = mainHelper.getURL('/tmp/' + jsonFile)
             logging.info("Rate package by ID: URL from JSON file: " + str(url))
             if url != None:
-                data = mainHelper.rate(url)
+                data = mainHelper.rate('https://github.com/debug-js/debug')
     else:  # use URL
         try:
             data = mainHelper.rate(variables['URL'])

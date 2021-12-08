@@ -28,7 +28,9 @@ def getURL(file): #file = name of file in directory
                     if key1 == 'url':
                         if value1.startswith("git://"):
                             tempUrl = value1[3:]
-                            return 'http' + tempUrl
+                            if tempUrl.endswith('.git'):
+                                finalUrl = tempUrl[:-4]
+                            return 'http' + finalUrl
                         else:
                             return value1
             else:

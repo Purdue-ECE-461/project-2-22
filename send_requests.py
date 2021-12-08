@@ -1,7 +1,13 @@
 import requests
+from git import Repo
+from zipfile import ZipFile
+from Actions import Decode
+import os
+from os.path import basename
+import shutil
 
-APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-# APP_BASE_URL = r'http://127.0.0.1:8080/'
+# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -183,10 +189,15 @@ if __name__ == '__main__':
     # ping_post_package('Cloudier', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
     #                                      '')
 
-    # print(ping_post_package('Cloudier', '2.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
-    #                        'hello'))
+    res = ping_post_package('Cloudier', '2.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+                            None)
+    print(res)
+    p_id = res[2]['ID']
+
+    print(ping_get_package_by_id(p_id))
 
     # print(ping_post_package('Cloudier', '3.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
-    #                        'hello'))
+    #                         'hello'))
 
-    ping_delete_package_by_name('Cloudier')
+    # ping_delete_package_by_name('Cloudier')
+

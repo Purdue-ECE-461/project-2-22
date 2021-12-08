@@ -327,6 +327,15 @@ def get_filename_from_id(pid):
     return ret_val[0][0]
 
 
+def get_url_from_id(pid):
+    con = mysql_connect()
+    cur = con.cursor()
+    cur.execute("SELECT URL from packages where INTERNAL_ID=" + str(pid))
+    ret_val = cur.fetchall()
+    mysql_close(con)
+    return ret_val[0][0]
+
+
 def get_last_id():
     con = mysql_connect()
     cur = con.cursor()

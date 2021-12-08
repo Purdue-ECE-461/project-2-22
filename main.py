@@ -3,6 +3,11 @@ import json
 
 from flask import Flask, render_template, request, url_for, make_response, Response, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
+from git import Repo
+import shutil
+from zipfile import ZipFile
+import os
+from os.path import basename
 
 from firebase import firebase
 from google.cloud import storage
@@ -206,7 +211,22 @@ def get_package_by_id(id):
     '''Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Filename'],
                            destination_folder_local=DEST_FOLDER)'''
     if (ret_data['Filename'] is None or ret_data['Filename'] == 'None'):
-        lines = None
+        # todo add code to return the base64 encoding
+        Repo.clone_from('https://github.com/jonschlinkert/even', 'tmp/to_encode')
+        logging.info("cloned")
+        logging.info('zipped')
+        with ZipFile('tmp/to_encode.zip', 'w') as zipObj:
+            # Iterate over all the files in directory
+            for folderName, subfolders, filenames in os.walk('tmp/to_encode'):
+                for filename in filenames:
+                    # create complete filepath of file in directory
+                    filePath = os.path.join(folderName, filename)
+                    # Add file to zip
+                    zipObj.write(filePath, basename(filePath))
+        logging.info('encoded')
+        content = Decode.encode_zip('tmp/to_encode.zip')
+        shutil.rmtree('tmp/to_encode', ignore_errors=True)
+        lines = content
     else:
 
         lines = Download.download_text(filename_to_gcp=ret_data['Filename'], destination_bucket_gcp=MAIN_BUCKET_NAME)
@@ -264,7 +284,7 @@ def update_package(id):
     if 'Content' in data_list_dict['data']:
         print('Content found')
         if database_helper.package_exists(name, version, id):
-            database_helper.update_package(name, version, p_id, '', database_helper.get_filename_from_id(p_id))
+            database_helper.update_package(name, version, p_id, database_helper.get_url_from_id(p_id), database_helper.get_filename_from_id(p_id))
             Update.update_file(
                 bucket_name=MAIN_BUCKET_NAME,
                 object_name=database_helper.get_filename_from_id(p_id)[:-4],
@@ -275,19 +295,11 @@ def update_package(id):
             status_code = 403
     elif 'URL' in data_list_dict['data']:
         print('URL found')
-
-    '''if database_helper.package_exists(name, version, id):
-        database_helper.update_package(name, version, p_id, url, output_filename_txt)
-        Update.update_file(
-            bucket_name=MAIN_BUCKET_NAME,
-            object_name=output_filename_txt,
-            source_file_local=complete_text_file_path
-        )
-        status_code = 200
-    else:
-        status_code = 400
-    # ------------
-    shutil.rmtree(complete_text_file_path)'''
+        if database_helper.package_exists(name, version, id):
+            database_helper.update_package(name, version, p_id, data_list_dict['data']['URL'], database_helper.get_filename_from_id(p_id))
+            status_code = 200
+        else:
+            status_code = 403
 
     return Response(status=status_code)
 
@@ -332,6 +344,8 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         url = (data_list_dict['data']['URL'])
         frontEnd = 0
 
+    if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
+        return Response(status=400)
 
     # if package exists already: return 403 code
     # status_code = flask.Response(status=201)

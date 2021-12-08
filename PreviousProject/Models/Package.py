@@ -233,3 +233,4 @@ class Package:
     parent: Optional[Parent] = None
     source: Optional[Parent] = None
     message: Optional[str] = None
+    documentation_url: Optional[str] = None

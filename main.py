@@ -379,11 +379,12 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         if database_helper.is_unique_package(name, version, p_id):
             database_helper.post_package(name, version, p_id, url, (name + str(int_id) + ".txt"))
             # Cloud Storage: Uploading file to GCP.
-            Upload.upload_file(
-                filename_to_gcp=(name + str(int_id)),
-                encoded_zipfile_string=encoded_text_to_gcp,
-                destination_bucket_gcp=MAIN_BUCKET_NAME
-            )
+            if content != 'None':
+                Upload.upload_file(
+                    filename_to_gcp=(name + str(int_id)),
+                    encoded_zipfile_string=encoded_text_to_gcp,
+                    destination_bucket_gcp=MAIN_BUCKET_NAME
+                )
             status_code = 201
         else:
             status_code = 403

@@ -249,19 +249,33 @@ def update_package(id):
     name = (data_list_dict['metadata']['Name'])
     version = (data_list_dict['metadata']['Version'])
     p_id = (data_list_dict['metadata']['ID'])
-    url = (data_list_dict['data']['URL'])
 
     # Decode: Put the encoded string to a text file
     # current_path = os.getcwd()
-    current_path = tempfile.mkdtemp()
+    '''current_path = tempfile.mkdtemp()
     encoded_text_file = (data_list_dict['data']['Content'])
     complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
         encoded_text=encoded_text_file,
         text_file_folder_path=current_path,
         filename_original=name
-    )
+    )'''
 
-    if database_helper.package_exists(name, version, id):
+    if 'Content' in data_list_dict['data']:
+        print('Content found')
+        if database_helper.package_exists(name, version, id):
+            database_helper.update_package(name, version, p_id, '', database_helper.get_filename_from_id(p_id))
+            Update.update_file(
+                bucket_name=MAIN_BUCKET_NAME,
+                object_name=database_helper.get_filename_from_id(p_id)[:-4],
+                content=data_list_dict['data']['Content']
+            )
+            status_code = 200
+        else:
+            status_code = 403
+    elif 'URL' in data_list_dict['data']:
+        print('URL found')
+
+    '''if database_helper.package_exists(name, version, id):
         database_helper.update_package(name, version, p_id, url, output_filename_txt)
         Update.update_file(
             bucket_name=MAIN_BUCKET_NAME,
@@ -272,7 +286,7 @@ def update_package(id):
     else:
         status_code = 400
     # ------------
-    shutil.rmtree(complete_text_file_path)
+    shutil.rmtree(complete_text_file_path)'''
 
     return Response(status=status_code)
 

@@ -1,7 +1,7 @@
 import requests
 
-# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-APP_BASE_URL = r'http://127.0.0.1:8080/'
+APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+# APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -48,6 +48,20 @@ def ping_get_package_by_id(package_id):
 def ping_update_package_by_id(package_name, package_version, package_id, package_url, package_content):
     payload = {'data':
                    {'URL': str(package_url), 'JSProgram': 'update_test', 'Content': str(package_content)},
+               'metadata':
+                   {'Name': str(package_name), 'Version': str(package_version), 'ID': str(package_id)}
+               }
+    r = requests.put(APP_BASE_URL + 'package/' + str(package_id), json=payload)
+
+    headers = r.headers
+    status_code = r.status_code
+
+    return headers, status_code
+
+
+def ping_update_package_no_content(package_name, package_version, package_id, package_url):
+    payload = {'data':
+                   {'URL': str(package_url), 'JSProgram': 'update_test'},
                'metadata':
                    {'Name': str(package_name), 'Version': str(package_version), 'ID': str(package_id)}
                }
@@ -164,7 +178,4 @@ if __name__ == '__main__':
     # res = ping_get_package_by_id(64)
 
     # p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
-    res = ping_get_package_by_name('Cloudier')
-    print(res[2][-1]['PackageMetadata']['Name'])
-    print(res[2][-1]['Action'])
-
+    print(ping_update_package_by_id('Express-Test', '5.0.0', '172', 'test.com', 'testing update'))

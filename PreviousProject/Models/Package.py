@@ -232,3 +232,4 @@ class Package:
     organization: Optional[Owner] = None
     parent: Optional[Parent] = None
     source: Optional[Parent] = None
+    message: Optional[str] = None

@@ -5,8 +5,6 @@ from google.cloud import storage
 def delete_object_safe(bucket_name, object_name):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
-    if len(object_name.split(".")) == 1:
-        object_name = object_name + ".txt"
     blob = bucket.blob(object_name)
     blob.delete()
 

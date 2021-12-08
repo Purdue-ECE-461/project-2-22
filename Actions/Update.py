@@ -1,11 +1,9 @@
 from Actions import Delete
 from Actions import Upload
-# import Delete
-# import Upload
+from Actions import ActionHelper
 
 
-def update_file(bucket_name, encoded_zipfile_string, filename_to_gcp):
-    Delete.delete_object(bucket_name, filename_to_gcp)
-    Upload.upload_file(filename_to_gcp, encoded_zipfile_string, bucket_name)
-    return
+def update_file(bucket_name, object_name, content):
+    Delete.delete_object(bucket_name, object_name + '.txt')
+    Upload.upload_file(object_name, content, bucket_name)
 

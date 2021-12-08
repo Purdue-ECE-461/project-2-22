@@ -1,6 +1,5 @@
 import os
 from Actions import ActionHelper
-from Actions import Search
 from google.cloud import storage
 
 
@@ -15,12 +14,8 @@ def download_text(filename_to_gcp, destination_bucket_gcp):
     # filename_to_gcp: the name of the file that is in gcp
     client = storage.Client()
     bucket = client.get_bucket(destination_bucket_gcp)
-    # Should check if the file is there or not
-    if Search.find_object(destination_bucket_gcp, filename_to_gcp):
-        blob = bucket.blob(filename_to_gcp)
-        return blob.download_as_text()
-    else:
-        return "Message from Download.py: File wasn't found in GCP"
+    blob = bucket.blob(filename_to_gcp)
+    return blob.download_as_text()
 
 
 def download_bucket(source_bucket_gcp, destination_folder_local):

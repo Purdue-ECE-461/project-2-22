@@ -21,7 +21,7 @@ def decode_base64(output_zip, string_to_decode):
         f.write(decoded)
 
 
-# todo return the correct filename/path
+#todo return the correct filename/path
 def string_to_text_file(encoded_text, text_file_folder_path, filename_original):
     filename = f"{filename_original}.txt"
     text_file_folder_path = os.path.join(text_file_folder_path, "tmp")
@@ -38,12 +38,12 @@ def text_file_to_string(text_file):
 
 
 if __name__ == "__main__":
-    file_to_encode = "C:\\Users\\sguad\\Downloads\\test_update.zip"
-    file_to_decode = "C:\\Users\\sguad\\Downloads\\expressjs_decoded.zip"
-    folder_dest_text = "C:\\Users\\sguad\\Downloads"
+    file_to_encode = "C:\\Users\\sguad\\A_Desktop\\College\\VIP\\Datasets\\Fiducial\\images.zip"
+    file_to_decode = "C:\\Users\\sguad\\A_Desktop\\College\\VIP\\Datasets\\Fiducial\\images_1.zip"
+    folder_dest_text = "C:\\Users\\sguad\\A_Desktop\\College\\VIP\\Datasets\\Fiducial"
 
     encoded_string = encode_zip(file_to_encode)
-    file_text, filename = string_to_text_file(encoded_string, folder_dest_text, "expressjs")
+    file_text = string_to_text_file(encoded_string, folder_dest_text)
     string_encoded_from_text = text_file_to_string(file_text)
     if string_encoded_from_text == encoded_string:
         print("Great")

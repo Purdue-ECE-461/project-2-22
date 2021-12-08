@@ -270,9 +270,6 @@ def update_package(id):
     name = (data_list_dict['metadata']['Name'])
     version = (data_list_dict['metadata']['Version'])
     p_id = (data_list_dict['metadata']['ID'])
-    # url = (data_list_dict['data']['URL'])
-
-    encoded_text_file = (data_list_dict['data']['Content'])
 
     # Decode: Put the encoded string to a text file
     # current_path = os.getcwd()
@@ -287,12 +284,11 @@ def update_package(id):
     if 'Content' in data_list_dict['data']:
         print('Content found')
         if database_helper.package_exists(name, version, id):
-            database_helper.update_package(name, version, p_id, database_helper.get_url_from_id(p_id),
-                                           database_helper.get_filename_from_id(p_id))
+            database_helper.update_package(name, version, p_id, database_helper.get_url_from_id(p_id), database_helper.get_filename_from_id(p_id))
             Update.update_file(
                 bucket_name=MAIN_BUCKET_NAME,
-                encoded_zipfile_string=encoded_text_file,
-                filename_to_gcp=name
+                object_name=database_helper.get_filename_from_id(p_id)[:-4],
+                content=data_list_dict['data']['Content']
             )
             status_code = 200
         else:
@@ -326,7 +322,7 @@ def delete_package_by_id(id):
 
 @app.route('/package', methods=['POST'])
 def post_package(name=None, content=None, version=None, url=None, jsprogram=None):
-    # these variables are None if the requests are done via postman, they are not None if done by front end
+    #these variables are None if the requests are done via postman, they are not None if done by front end
 
     if name == None:
         header = request.headers.get('X-Authorization')
@@ -501,7 +497,6 @@ def get_package_by_name(name):
     database_helper.get_package_by_name(name)
 
     # Download file from GCP
-    response_download = Download.download_text(filename_to_gcp=name, destination_bucket_gcp=MAIN_BUCKET_NAME)
     '''filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, name)
     if filename_in_gcp is not None:
         current_path = os.getcwd()
@@ -538,7 +533,9 @@ def get_package_by_name(name):
 
     r = json.dumps(data_list)
 
-    return Response(response=r, status=200, mimetype="application/json")
+    return Response(response=r,
+                        status=200,
+                        mimetype="application/json")
 
 
 @app.route('/package/byName/<name>', methods=['DELETE'])

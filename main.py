@@ -26,8 +26,6 @@ from Actions import Delete, ResetDefault, Upload, Update, Search
 from Actions import Decode
 from Actions import Download
 import logging
-import shutil
-import tempfile
 
 DEST_FOLDER = 'downloaded_files'
 
@@ -71,6 +69,7 @@ def root():
         unix_socket = '/cloudsql/{}'.format(database_helper.db_connection_name)
         cnx = pymysql.connect(user=database_helper.db_user, password=database_helper.db_password,
                               unix_socket=unix_socket, db=database_helper.db_name)
+        logging.info("Root connected to database")
     else:
         # If running locally, use the TCP connections instead
         # Set up Cloud SQL Proxy (cloud.google.com/sql/docs/mysql/sql-proxy)
@@ -145,7 +144,7 @@ def get_packages(offset=None):
     try:
         if offset == None:
             offset = request.args.get('offset')
-            print(offset)
+            logging.info('Offset in get packages: ' + str(offset))
             header = request.headers.get('Content-Type')
             print(header)
 
@@ -212,7 +211,7 @@ def get_package_by_id(id):
                            destination_folder_local=DEST_FOLDER)'''
     if (ret_data['Filename'] is None or ret_data['Filename'] == 'None'):
         # todo add code to return the base64 encoding
-        Repo.clone_from('https://github.com/jonschlinkert/even', 'tmp/to_encode')
+        '''Repo.clone_from('https://github.com/jonschlinkert/even', 'tmp/to_encode')
         logging.info("cloned")
         logging.info('zipped')
         with ZipFile('tmp/to_encode.zip', 'w') as zipObj:
@@ -225,8 +224,8 @@ def get_package_by_id(id):
                     zipObj.write(filePath, basename(filePath))
         logging.info('encoded')
         content = Decode.encode_zip('tmp/to_encode.zip')
-        shutil.rmtree('tmp/to_encode', ignore_errors=True)
-        lines = content
+        shutil.rmtree('tmp/to_encode', ignore_errors=True)'''
+        lines = []
     else:
 
         lines = Download.download_text(filename_to_gcp=ret_data['Filename'], destination_bucket_gcp=MAIN_BUCKET_NAME)
@@ -552,9 +551,9 @@ def delete_package_by_name(name):
 
     for fname in filenames:
         logging.warning(fname)
-        filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
-        logging.info(filename_in_gcp.name)
-        if filename_in_gcp is not None:
+        # filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
+        # logging.info(filename_in_gcp.name)
+        if True:
             Delete.delete_object_safe(
                 bucket_name=MAIN_BUCKET_NAME,
                 object_name=fname

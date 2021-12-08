@@ -189,10 +189,10 @@ if __name__ == '__main__':
     # ping_post_package('Cloudier', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
     #                                      '')
 
-    res = ping_post_package('Cloudier', '6.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
-                            None)
-    print(res)
-    p_id = res[2]['ID']
+    res = ping_post_package('Cloudier', '8.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+                            'alia')
+    #print(res)
+    #p_id = res[2]['ID']
 
     # print(ping_get_package_by_id('211'))
 

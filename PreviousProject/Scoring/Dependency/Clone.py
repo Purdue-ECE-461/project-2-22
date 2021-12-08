@@ -43,7 +43,7 @@ def getScore(module_name):
 
             if dep == 0:
                 if devDep == 0:
-                    return 12
+                    return 0
 
             if dep == 1:
                 for key, value in data["dependencies"].items():

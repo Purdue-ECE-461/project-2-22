@@ -212,7 +212,7 @@ def get_package_by_id(id):
                            destination_folder_local=DEST_FOLDER)'''
     if (ret_data['Filename'] is None or ret_data['Filename'] == 'None'):
         # todo add code to return the base64 encoding
-        Repo.clone_from('https://github.com/jonschlinkert/even', 'tmp/to_encode')
+        '''Repo.clone_from('https://github.com/jonschlinkert/even', 'tmp/to_encode')
         logging.info("cloned")
         logging.info('zipped')
         with ZipFile('tmp/to_encode.zip', 'w') as zipObj:
@@ -225,8 +225,8 @@ def get_package_by_id(id):
                     zipObj.write(filePath, basename(filePath))
         logging.info('encoded')
         content = Decode.encode_zip('tmp/to_encode.zip')
-        shutil.rmtree('tmp/to_encode', ignore_errors=True)
-        lines = content
+        shutil.rmtree('tmp/to_encode', ignore_errors=True)'''
+        lines = ''
     else:
 
         lines = Download.download_text(filename_to_gcp=ret_data['Filename'], destination_bucket_gcp=MAIN_BUCKET_NAME)

@@ -40,6 +40,7 @@ def getScore(module_name):
                     dep = 1
                 if key == 'devDependencies':
                     devDep = 1
+                    return 99
 
             if dep == 0 & devDep == 0:
                 return 0

@@ -53,6 +53,7 @@ def protected():
 
 @app.route('/')
 def root():
+    logging.info("Root Endpoint Reached")
     if os.environ.get('GAE_ENV') == 'standard' or True:
         # If deployed, use the local socket interface for accessing Cloud SQL
         unix_socket = '/cloudsql/{}'.format(database_helper.db_connection_name)
@@ -138,6 +139,7 @@ def get_packages(offset=None):
             print(header)
 
         d = (str(request.data.decode('utf-8')))
+        logging.info('/packages POST data: ' + d)
         print(d)
         data_list_dict = json.loads(d)
         print(data_list_dict)
@@ -163,6 +165,7 @@ def get_packages(offset=None):
 
 @app.route('/reset', methods=['DELETE'])
 def delete_all_packages():
+    logging.info('/reset')
     try:
         permission = True
 
@@ -185,7 +188,7 @@ def delete_all_packages():
 
 @app.route('/package/<id>', methods=['GET'])
 def get_package_by_id(id):
-    print(id)
+    logging.info('get package by ID endpoint; package_id: ' + str(id))
 
     # returns in the format Name Version Filename Url Content
     ret_data = database_helper.get_package_by_id(int(id))
@@ -234,10 +237,11 @@ def get_package_by_id(id):
 def update_package(id):
     # the name, version, and ID must match
     # the package contents will replace the previous contents
-    print(id)
+    logging.info("Update Package; ID: " + str(id))
 
     try:
         d = (str(request.data.decode('utf-8')))
+        logging.info('Update Package Data: ' + d)
         data_list_dict = json.loads(d)
 
         # args = message_parser.parse_args(req=root_args)
@@ -277,6 +281,7 @@ def update_package(id):
 @app.route('/package/<id>', methods=['DELETE'])
 def delete_package_by_id(id):
     print(id)
+    logging.info('Delete package by ID: ' + str(id))
     filename = database_helper.delete_package_by_id(id)
     # TODO: Need name of the package for GCP
     try:
@@ -298,6 +303,7 @@ def delete_package_by_id(id):
 
 @app.route('/package', methods=['POST'])
 def post_package(name=None, content=None, version=None, url=None, jsprogram=None):
+    logging.info('Enter Post Package Endpoint')
     # these variables are None if the requests are done via postman, they are not None if done by front end
 
     if name == None:
@@ -320,6 +326,7 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         frontEnd = 0
 
     if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
+        logging.info('Provided JSON has no URL or Content')
         return Response(status=400)
 
     ingestion = 1
@@ -366,6 +373,8 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
                 status_code = 201
             else:
                 status_code = 405  # todo: need value to be changed? let's just have that mean uningestible
+                logging.info("Package was not ingestible")
+                logging.info("Package URL: " + str(url))
             database_helper.mysql_close(conn)
         else:
             status_code = 405  # todo: need value to be changed?
@@ -383,6 +392,7 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
 
 @app.route('/package/<id>/rate', methods=['GET'])
 def rate_package_by_id(id):
+    logging.info("Rate package by ID: " + str(id))
     print(id)
     # if successful rating
     data = {
@@ -414,10 +424,18 @@ def rate_package_by_id(id):
         jsonFile = mainHelper.getPackageJson("/tmp/output.zip")
         if jsonFile != None:
             url = mainHelper.getURL('/tmp/' + jsonFile)
+            logging.info("Rate package by ID: URL from JSON file: " + str(url))
             if url != None:
                 data = mainHelper.rate(url)
     else:  # use URL
-        data = mainHelper.rate(variables['URL'])
+        try:
+            data = mainHelper.rate(variables['URL'])
+            status_code = 200
+        except Exception as e:
+            logging.error(str(e))
+            print(str(e))
+            status_code = 500
+
 
     r = make_response(data)
     r.status_code = status_code
@@ -487,7 +505,7 @@ def get_package_by_name(name):
 
 @app.route('/package/byName/<name>', methods=['DELETE'])
 def delete_package_by_name(name):
-    print(name)
+    logging.info("Delete package by name: " + str(name))
 
     if len(database_helper.get_package_by_name(name)) == 0:
         return Response(status=400)
@@ -497,19 +515,27 @@ def delete_package_by_name(name):
     database_helper.delete_package_by_name(name)
     # Delete file from GCP
 
-    if len(filenames) > 0:
-        for fname in filenames:
-            logging.warning(fname)
-            filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
-            logging.info(filename_in_gcp.name)
-            if filename_in_gcp:
-                Delete.delete_object_safe(
-                    bucket_name=MAIN_BUCKET_NAME,
-                    object_name=fname
-                )
+    status_code = 200
+
+    try:
+        if len(filenames) > 0:
+            for fname in filenames:
+                logging.warning(fname)
+                filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
+                logging.info(filename_in_gcp.name)
+                if filename_in_gcp:
+                    Delete.delete_object_safe(
+                        bucket_name=MAIN_BUCKET_NAME,
+                        object_name=fname
+                    )
+            status_code = 200
+    except Exception as e:
+        logging.error(str(e))
+        print(str(e))
+        status_code = 500
 
     # return 400 for no such package; return 200 for success
-    return Response(status=200)
+    return Response(status=status_code)
 
 
 if __name__ == '__main__':

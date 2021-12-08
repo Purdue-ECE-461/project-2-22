@@ -40,10 +40,10 @@ def getScore(module_name):
                     dep = 1
                 if key == 'devDependencies':
                     devDep = 1
-                    return 44
 
-            if dep == 0 & devDep == 0:
-                return 45
+            if dep == 0:
+                if devDep == 0:
+                    return 12
 
             if dep == 1:
                 for key, value in data["dependencies"].items():

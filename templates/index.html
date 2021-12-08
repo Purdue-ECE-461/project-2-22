@@ -15,7 +15,7 @@
  limitations under the License.
 -->
 
-<html>
+<html lang="en">
 <head>
   <title>Private and Public Module Registry Handler</title>
   <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
@@ -111,20 +111,20 @@
   <br>
   <br>
   <form action="/start" method="post">
-    <select name="requestType">
+    <label for="request">Request:</label><select id="request">
       <option value="list">List</option>
       <option value="upload">Upload</option>
       <option value="update">Update</option>
       <option value="rate">Rate</option>
       <option value="delete">Delete</option>
     </select> <br>
-    <input type="number" id="id"><label for="id">Id</label> <br>
-    Name: <input type="text" name="name"> <br>
-    Content: <input type="text" name="content"> <br>
-    Version: <input type="text" name="version"> <br>
-    URL: <input type="text" name="url"> <br>
-    JSProgram: <input type="text" name="jsprogram"> <br>
-    Offset: <input type="number" name="offset"> <br>
+    <label for="id">Id:</label><input type="number" id="id"> <br>
+    <label for="id">Name:</label><input type="text" id="name"> <br>
+    <label for="id">Content:</label><input type="text" id="content"> <br>
+    <label for="id">Version:</label><input type="text" id="version"> <br>
+    <label for="id">URL:</label><input type="text" id="url"> <br>
+    <label for="id">JSProgram:</label><input type="text" id="jsprogram"> <br>
+    <label for="id">Offset:</label><input type="number" id="offset"> <br>
     <input type="submit" name= "submit" value="Submit" />
   </form>
 

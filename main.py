@@ -3,18 +3,7 @@ import json
 
 from flask import Flask, render_template, request, url_for, make_response, Response, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
-from git import Repo
-import shutil
-from zipfile import ZipFile
-import os
-from os.path import basename
 
-from firebase import firebase
-from google.cloud import storage
-from google.auth.transport import requests
-from google.cloud import datastore
-import google.oauth2.id_token
-from flask_login import login_user, logout_user, current_user, login_required, LoginManager
 from werkzeug.utils import redirect
 
 import database_helper
@@ -110,10 +99,10 @@ def start():
             else:
                 return get_package_by_name(name)
         else:
-            return get_package_by_id(id) #WORKS CORRECTLY
+            return get_package_by_id(id)  # WORKS CORRECTLY
         # get packages
     elif select == "upload":
-        return post_package(name, content, version, url, jsprogram) #DOES NOT WORK
+        return post_package(name, content, version, url, jsprogram)  # DOES NOT WORK
         # upload stuff
     elif select == "update":
         return update_package(id)
@@ -162,9 +151,9 @@ def get_packages(offset=None):
                         status=200,
                         mimetype="application/json")
     except Exception as e:
-        print("yikes")
+        logging.error(str(e))
         print(str(e))
-        resp = make_response({"code": 500, "message": "Unexpected Error"})
+        resp = make_response({"code": 500, "message": "Unexpected Error in Get Packages (POST)"})
         resp.mimetype = 'application/json'
 
     return resp
@@ -174,22 +163,22 @@ def get_packages(offset=None):
 
 @app.route('/reset', methods=['DELETE'])
 def delete_all_packages():
-    # return 200 registry is reset
-    # return 401 no permissions to reset the registry
+    try:
+        permission = True
 
-    # todo add a function to reset to table if time
+        if permission:
+            database_helper.delete_all_packages()
+            status_code = 200
+            # Cloud Storage: Reset bucket to default, empty all objects
+            ResetDefault.reset_default(MAIN_BUCKET_NAME)
+        else:
+            status_code = 401
 
-    permission = True
-
-    if permission:
-        database_helper.delete_all_packages()
-        status_code = 200
-        # Cloud Storage: Reset bucket to default, empty all objects
-        ResetDefault.reset_default(MAIN_BUCKET_NAME)
-    else:
-        status_code = 401
-
-    resp = Response(status=status_code)
+        resp = Response(status=status_code)
+    except Exception as e:
+        logging.error(str(e))
+        resp = make_response({"code": 500, "message": "Unexpected Error in Delete all packages"})
+        resp.mimetype = 'application/json'
 
     return resp
 
@@ -207,50 +196,35 @@ def get_package_by_id(id):
     # take ret_data[content] with the bucket path and put that into a text file
     # read in that text file and assign that to a content variable
 
-    '''Download.download_file(bucket=MAIN_BUCKET_NAME, file_to_download=ret_data['Filename'],
-                           destination_folder_local=DEST_FOLDER)'''
-    if (ret_data['Filename'] is None or ret_data['Filename'] == 'None'):
-        # todo add code to return the base64 encoding
-        '''Repo.clone_from('https://github.com/jonschlinkert/even', 'tmp/to_encode')
-        logging.info("cloned")
-        logging.info('zipped')
-        with ZipFile('tmp/to_encode.zip', 'w') as zipObj:
-            # Iterate over all the files in directory
-            for folderName, subfolders, filenames in os.walk('tmp/to_encode'):
-                for filename in filenames:
-                    # create complete filepath of file in directory
-                    filePath = os.path.join(folderName, filename)
-                    # Add file to zip
-                    zipObj.write(filePath, basename(filePath))
-        logging.info('encoded')
-        content = Decode.encode_zip('tmp/to_encode.zip')
-        shutil.rmtree('tmp/to_encode', ignore_errors=True)'''
-        lines = []
-    else:
+    try:
+        if (ret_data['Filename'] is None or ret_data['Filename'] == 'None'):
+            lines = []
+        else:
+            lines = Download.download_text(filename_to_gcp=ret_data['Filename'],
+                                           destination_bucket_gcp=MAIN_BUCKET_NAME)
 
-        lines = Download.download_text(filename_to_gcp=ret_data['Filename'], destination_bucket_gcp=MAIN_BUCKET_NAME)
+        print(lines)
 
-    print(lines)
-
-    # read in text file
-    # with open(DEST_FOLDER + '/test.txt') as f:
-    #    lines = f.readlines()
-
-    data = {
-        "metadata": {
-            "Name": ret_data['Name'],
-            "Version": ret_data['Version'],
-            "ID": str(id)
-        },
-        "data": {
-            "Content": str(lines),
-            "URL": ret_data['URL'],
-            "JSProgram": "None"
+        data = {
+            "metadata": {
+                "Name": ret_data['Name'],
+                "Version": ret_data['Version'],
+                "ID": str(id)
+            },
+            "data": {
+                "Content": str(lines),
+                "URL": ret_data['URL'],
+                "JSProgram": "None"
+            }
         }
-    }
 
-    r = make_response(data)
-    r.mimetype = 'application/json'
+        r = make_response(data)
+        r.mimetype = 'application/json'
+    except Exception as e:
+        logging.error(str(e))
+        print(str(e))
+        r = make_response({"code": 500, "message": "Unexpected Error in get package by id"})
+        r.mimetype = 'application/json'
 
     render_template('page.html', endpoint=('GET: package/' + str(id)))
     return r
@@ -262,43 +236,40 @@ def update_package(id):
     # the package contents will replace the previous contents
     print(id)
 
-    d = (str(request.data.decode('utf-8')))
-    data_list_dict = json.loads(d)
+    try:
+        d = (str(request.data.decode('utf-8')))
+        data_list_dict = json.loads(d)
 
-    # args = message_parser.parse_args(req=root_args)
-    name = (data_list_dict['metadata']['Name'])
-    version = (data_list_dict['metadata']['Version'])
-    p_id = (data_list_dict['metadata']['ID'])
+        # args = message_parser.parse_args(req=root_args)
+        name = (data_list_dict['metadata']['Name'])
+        version = (data_list_dict['metadata']['Version'])
+        p_id = (data_list_dict['metadata']['ID'])
 
-    # Decode: Put the encoded string to a text file
-    # current_path = os.getcwd()
-    '''current_path = tempfile.mkdtemp()
-    encoded_text_file = (data_list_dict['data']['Content'])
-    complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
-        encoded_text=encoded_text_file,
-        text_file_folder_path=current_path,
-        filename_original=name
-    )'''
-
-    if 'Content' in data_list_dict['data']:
-        print('Content found')
-        if database_helper.package_exists(name, version, id):
-            database_helper.update_package(name, version, p_id, database_helper.get_url_from_id(p_id), database_helper.get_filename_from_id(p_id))
-            Update.update_file(
-                bucket_name=MAIN_BUCKET_NAME,
-                object_name=database_helper.get_filename_from_id(p_id)[:-4],
-                content=data_list_dict['data']['Content']
-            )
-            status_code = 200
-        else:
-            status_code = 403
-    elif 'URL' in data_list_dict['data']:
-        print('URL found')
-        if database_helper.package_exists(name, version, id):
-            database_helper.update_package(name, version, p_id, data_list_dict['data']['URL'], database_helper.get_filename_from_id(p_id))
-            status_code = 200
-        else:
-            status_code = 403
+        if 'Content' in data_list_dict['data']:
+            print('Content found')
+            if database_helper.package_exists(name, version, id):
+                database_helper.update_package(name, version, p_id, database_helper.get_url_from_id(p_id),
+                                               database_helper.get_filename_from_id(p_id))
+                Update.update_file(
+                    bucket_name=MAIN_BUCKET_NAME,
+                    object_name=database_helper.get_filename_from_id(p_id)[:-4],
+                    content=data_list_dict['data']['Content']
+                )
+                status_code = 200
+            else:
+                status_code = 403
+        elif 'URL' in data_list_dict['data']:
+            print('URL found')
+            if database_helper.package_exists(name, version, id):
+                database_helper.update_package(name, version, p_id, data_list_dict['data']['URL'],
+                                               database_helper.get_filename_from_id(p_id))
+                status_code = 200
+            else:
+                status_code = 403
+    except Exception as e:
+        logging.error(str(e))
+        print(str(e))
+        status_code = 500
 
     return Response(status=status_code)
 
@@ -308,20 +279,26 @@ def delete_package_by_id(id):
     print(id)
     filename = database_helper.delete_package_by_id(id)
     # TODO: Need name of the package for GCP
-    if filename is not None:
-        Delete.delete_object_safe(
-            bucket_name=MAIN_BUCKET_NAME,
-            object_name=filename
-        )
-        status_code = 200
-    else:
-        status_code = 400
+    try:
+        if filename is not None:
+            Delete.delete_object_safe(
+                bucket_name=MAIN_BUCKET_NAME,
+                object_name=filename
+            )
+            status_code = 200
+        else:
+            status_code = 400
+    except Exception as e:
+        logging.error(str(e))
+        print(str(e))
+        status_code = 500
+
     return Response(status=status_code)
 
 
 @app.route('/package', methods=['POST'])
 def post_package(name=None, content=None, version=None, url=None, jsprogram=None):
-    #these variables are None if the requests are done via postman, they are not None if done by front end
+    # these variables are None if the requests are done via postman, they are not None if done by front end
 
     if name == None:
         header = request.headers.get('X-Authorization')
@@ -334,7 +311,6 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     int_id = database_helper.get_auto_increment()
     print("Internal ID (auto increment): " + str(int_id))
 
-    # args = message_parser.parse_args(req=root_args)
     frontEnd = 1
     if name == None:
         name = (data_list_dict['metadata']['Name'])
@@ -346,33 +322,17 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
         return Response(status=400)
 
-    # if package exists already: return 403 code
-    # status_code = flask.Response(status=201)
-
     ingestion = 1
     for key, value in data_list_dict['data'].items():
         if key == 'Content':
             ingestion = 0
 
     if ingestion == 0:
-        # todo link the filename field to the bucket/filename
-        # todo add a column in the database for permissions/security
 
-        # Decode.py: Encoded string to text file
-        # current_path = os.getcwd()
-        # current_path = tempfile.mkdtemp()
-
-        #encoded_text_to_gcp = (data_list_dict['data']['Content'])
         if frontEnd == 0:
             content = (data_list_dict['data']['Content'])
 
         encoded_text_to_gcp = content
-
-        # complete_text_file_path, output_filename_txt = Decode.string_to_text_file(
-        #     encoded_text=encoded_text_file,
-        #     text_file_folder_path=current_path,
-        #     filename_original=name
-        # )
 
         print(database_helper.is_unique_package(name, version, p_id))
         if database_helper.is_unique_package(name, version, p_id):
@@ -447,10 +407,10 @@ def rate_package_by_id(id):
         # TODO: file = decode(variables['Filename'] ---> Santiago's code
         print(variables['Filename'])
         content_string = Download.download_text(variables['Filename'], MAIN_BUCKET_NAME)
-        #file = Decode.decode_base64("/tmp/output.zip", content_string)
+        # file = Decode.decode_base64("/tmp/output.zip", content_string)
         Decode.decode_base64("/tmp/output.zip", content_string)
         # It should be something like
-        #jsonFile = mainHelper.getPackageJson(file)  # TODO: change input to file
+        # jsonFile = mainHelper.getPackageJson(file)  # TODO: change input to file
         jsonFile = mainHelper.getPackageJson("/tmp/output.zip")
         if jsonFile != None:
             url = mainHelper.getURL('/tmp/' + jsonFile)
@@ -495,18 +455,6 @@ def get_package_by_name(name):
 
     database_helper.get_package_by_name(name)
 
-    # Download file from GCP
-    '''filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, name)
-    if filename_in_gcp is not None:
-        current_path = os.getcwd()
-        Download.download_file(
-            bucket=MAIN_BUCKET_NAME,
-            file_to_download=filename_in_gcp,
-            destination_folder_local=current_path  # Where to download?
-        )
-    else:
-        print("File not found on GCP")'''
-
     data = database_helper.get_package_by_name_history(name)
 
     if len(data) == 0:
@@ -518,23 +466,23 @@ def get_package_by_name(name):
 
     for d in data:
         new_dict = {'User': {
-                        'Name': 'No User',
-                        'isAdmin': 'N/A'
-                    },
-                    'Date': str(d[2]),
-                    'PackageMetadata': {
-                        'Name': d[3],
-                        'Version': d[4],
-                        'ID': d[5]
-                    },
-                    'Action': d[6]}
+            'Name': 'No User',
+            'isAdmin': 'N/A'
+        },
+            'Date': str(d[2]),
+            'PackageMetadata': {
+                'Name': d[3],
+                'Version': d[4],
+                'ID': d[5]
+            },
+            'Action': d[6]}
         data_list.append(new_dict)
 
     r = json.dumps(data_list)
 
     return Response(response=r,
-                        status=200,
-                        mimetype="application/json")
+                    status=200,
+                    mimetype="application/json")
 
 
 @app.route('/package/byName/<name>', methods=['DELETE'])

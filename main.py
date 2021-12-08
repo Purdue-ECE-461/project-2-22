@@ -523,6 +523,10 @@ def get_package_by_name(name):
 @app.route('/package/byName/<name>', methods=['DELETE'])
 def delete_package_by_name(name):
     print(name)
+
+    if len(database_helper.get_package_by_name(name)) == 0:
+        return Response(status=400)
+
     filenames = database_helper.get_file_names(name)
     logging.warning(filenames)
     database_helper.delete_package_by_name(name)
@@ -539,7 +543,7 @@ def delete_package_by_name(name):
             )
 
     # return 400 for no such package; return 200 for success
-    return Response(status=555)
+    return Response(status=200)
 
 
 if __name__ == '__main__':

@@ -26,7 +26,10 @@ def getURL(file): #file = name of file in directory
             if isinstance(value, dict):
                 for key1, value1 in value.items():
                     if key1 == 'url':
-                        return value1
+                        if value1.startswith("git://"):
+                            return value1[6:]
+                        else:
+                            return value1
             else:
                 return 'https://github.com/' + value
         elif key == "homepage":

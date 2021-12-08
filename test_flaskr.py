@@ -78,7 +78,7 @@ def test_get_packages_range():
         assert False
 
 
-'''def test_delete_package_by_name():
+def test_delete_package_by_name():
     resp = send_requests.ping_delete_package_by_name('Cloudier')
     print(resp)
     assert str(resp[1]) == '200'
@@ -86,7 +86,7 @@ def test_get_packages_range():
     if len(packages) > 0:
         assert False
     else:
-        assert True'''
+        assert True
 
 
 def test_get_package_history():

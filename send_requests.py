@@ -192,7 +192,7 @@ if __name__ == '__main__':
     '''res = ping_post_package('alia', '8.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                            'alia')
     print(res)'''
-    res = ping_delete_package_by_name('alia')
+    res = ping_delete_package_by_name('Cloudier')
     print(res)
 
 

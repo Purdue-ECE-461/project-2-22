@@ -80,8 +80,8 @@ def test_get_packages_range():
 
 def test_delete_package_by_name():
     resp = send_requests.ping_delete_package_by_name('Cloudier')
-    if resp[1] != 200:
-        assert False
+    print(resp)
+    assert str(resp[1]) == '200'
     packages = send_requests.ping_get_packages('1.0.0-8.0.0', 'Cloudier')[2]
     if len(packages) > 0:
         assert False

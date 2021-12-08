@@ -20,6 +20,7 @@ import pymysql
 from Actions import Delete, ResetDefault, Upload, Update, Search
 from Actions import Decode
 from Actions import Download
+import logging
 import shutil
 import tempfile
 
@@ -297,7 +298,7 @@ def delete_package_by_id(id):
     filename = database_helper.delete_package_by_id(id)
     # TODO: Need name of the package for GCP
     if filename is not None:
-        Delete.delete_object(
+        Delete.delete_object_safe(
             bucket_name=MAIN_BUCKET_NAME,
             object_name=filename
         )
@@ -523,22 +524,22 @@ def get_package_by_name(name):
 def delete_package_by_name(name):
     print(name)
     filenames = database_helper.get_file_names(name)
-    print(filenames)
+    logging.warning(filenames)
     database_helper.delete_package_by_name(name)
     # Delete file from GCP
 
     for fname in filenames:
+        logging.warning(fname)
         filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
-        print(filename_in_gcp.name)
+        logging.info(filename_in_gcp.name)
         if filename_in_gcp is not None:
-            Delete.delete_object(
+            Delete.delete_object_safe(
                 bucket_name=MAIN_BUCKET_NAME,
-                object_name=filename_in_gcp.name
+                object_name=fname
             )
-        else:
-            print("File not found on GCP")
+
     # return 400 for no such package; return 200 for success
-    return render_template('page.html', endpoint=('DELETE: package/byName/' + str(name)))
+    return Response(status=555)
 
 
 if __name__ == '__main__':

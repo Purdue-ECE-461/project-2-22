@@ -178,4 +178,15 @@ if __name__ == '__main__':
     # res = ping_get_package_by_id(64)
 
     # p_id = (database_helper.get_package_id('Cloudy', '3.1.2', '67'))
-    print(ping_update_package_by_id('Express-Test', '5.0.0', '172', 'test.com', 'testing update'))
+    # print(ping_update_package_by_id('Express-Test', '5.0.0', '172', 'test.com', 'testing update'))
+
+    # ping_post_package('Cloudier', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+    #                                      '')
+
+    # print(ping_post_package('Cloudier', '2.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+    #                        'hello'))
+
+    # print(ping_post_package('Cloudier', '3.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+    #                        'hello'))
+
+    ping_delete_package_by_name('Cloudier')

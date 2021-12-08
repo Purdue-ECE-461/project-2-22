@@ -40,7 +40,6 @@ def getScore(module_name):
                     dep = 1
                 if key == 'devDependencies':
                     devDep = 1
-                    return 99
 
             if dep == 0 & devDep == 0:
                 return 0
@@ -58,6 +57,7 @@ def getScore(module_name):
 
             if devDep == 1:
                 for key, value in data["devDependencies"].items():
+                    return 101
                     p = re.compile("[~^<>]?[=]?\d+\.\d+\.?[X|x|\d+]?")
                     x = p.search(value)
                     if x is not None:

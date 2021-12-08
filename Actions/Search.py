@@ -45,11 +45,6 @@ def find_object(bucket_name, name_searching):
 
     # Search for the bucket depending if it's a string or a list
     for object_searching in list_of_objects:
-        if type(name_searching) == list:
-            for word in name_searching:
-                if word in object_searching.name:
-                    return object_searching.name
-        else:
-            if name_searching in object_searching.name:
-                return object_searching
+        if name_searching == object_searching.name:
+            return True
 

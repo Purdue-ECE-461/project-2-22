@@ -549,15 +549,16 @@ def delete_package_by_name(name):
     database_helper.delete_package_by_name(name)
     # Delete file from GCP
 
-    for fname in filenames:
-        logging.warning(fname)
-        # filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
-        # logging.info(filename_in_gcp.name)
-        if True:
-            Delete.delete_object_safe(
-                bucket_name=MAIN_BUCKET_NAME,
-                object_name=fname
-            )
+    if len(filenames) > 0:
+        for fname in filenames:
+            logging.warning(fname)
+            filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
+            logging.info(filename_in_gcp.name)
+            if filename_in_gcp:
+                Delete.delete_object_safe(
+                    bucket_name=MAIN_BUCKET_NAME,
+                    object_name=fname
+                )
 
     # return 400 for no such package; return 200 for success
     return Response(status=200)

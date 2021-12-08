@@ -1,3 +1,5 @@
+import logging
+
 from Actions import List
 import os
 from Actions import List
@@ -45,6 +47,7 @@ def find_object(bucket_name, name_searching):
 
     # Search for the bucket depending if it's a string or a list
     for object_searching in list_of_objects:
+        logging.info(object_searching.name)
         if type(name_searching) == list:
             for word in name_searching:
                 if word in object_searching.name:
@@ -52,4 +55,8 @@ def find_object(bucket_name, name_searching):
         else:
             if name_searching in object_searching.name:
                 return object_searching
+
+
+if __name__ == '__main__':
+    find_object('acme_corporation_general', 'Cloudier')
 

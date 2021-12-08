@@ -4,7 +4,7 @@ import os
 import pymysql
 import semver
 
-from Actions import Decode
+from Actions import Search
 
 db_user = os.environ.get('CLOUD_SQL_USERNAME')
 db_password = os.environ.get('CLOUD_SQL_PASSWORD')
@@ -147,7 +147,7 @@ def post_package(name, version, p_id, url, filename):
     cur.execute("INSERT INTO packages (Name,Version,ID,URL,Filename) VALUES (%s, %s, %s, %s, %s);",
                 (str(name), str(version), str(p_id), str(url), str(filename),))
 
-    insert_package_history(name, version, get_last_id(), 'CREATE')
+    insert_package_history(name, version, get_auto_increment() - 1, 'CREATE')
 
     con.commit()
     mysql_close(con)
@@ -422,8 +422,6 @@ if __name__ == '__main__':
 
     # print(get_name_version_from_id(98))
 
-    print(get_auto_increment())
-
     '''import requests
 
     url = "http://127.0.0.1:8080/package"
@@ -456,3 +454,5 @@ if __name__ == '__main__':
         valid_packages = p[(offset - 1) * 10: (offset * 10 if len(p) >= offset * 10 else len(p))]
 
     print(valid_packages)'''
+
+    Search.find_object('acme_corporation_general', 'Cloudier')

@@ -213,18 +213,28 @@ if __name__ == '__main__':
     '''res = ping_post_package('alia', '8.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                            'alia')
     print(res)'''
-    res = ping_delete_package_by_name('Cloudier')
-    print(res)
 
 
-    '''res = ping_post_package('alia', '7.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+    res = ping_post_package('alia', '10.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+                            'alia')
+    res = ping_post_package('alia', '9.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+                            'alia')
+    res = ping_post_package('alia', '8.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+                            'alia')
+    res = ping_post_package('alia', '7.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                             'alia')
     res = ping_post_package('alia', '6.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                             'alia')
     res = ping_post_package('alia', '5.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                             'alia')
     res = ping_post_package('alia', '4.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
-                            'alia')'''
+                            'alia')
+    res = ping_post_package('alia', '3.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+                            'alia')
+    res = ping_post_package('alia', '2.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+                            'alia')
+    res = ping_post_package('alia', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+                            'alia')
     #print(res)
     #p_id = res[2]['ID']
 

@@ -339,7 +339,7 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         if frontEnd == 0:
             content = (data_list_dict['data']['Content'])
 
-        encoded_text_to_gcp = content
+        encoded_text_to_gcp = str(content)
 
         print(database_helper.is_unique_package(name, version, p_id))
         if database_helper.is_unique_package(name, version, p_id):

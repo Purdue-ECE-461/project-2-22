@@ -1,7 +1,8 @@
 import io, zipfile, json, pprint
 from zipfile import ZipFile
 
-def getPackageJson(file): #file = zip file
+
+def getPackageJson(file):
     with ZipFile(file, 'r') as zipObj:
         listOfFileNames = zipObj.namelist()
         for fileName in listOfFileNames:
@@ -16,7 +17,7 @@ def getPackageJson(file): #file = zip file
     return None
 
 
-def getURL(file): #file = name of file in directory
+def getURL(file):
     f = open(file, )
     data = json.load(f)
     f.close()

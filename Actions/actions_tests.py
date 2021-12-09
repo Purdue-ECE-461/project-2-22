@@ -43,9 +43,6 @@ def test_reset_default(main_bucket):
 
 
 def run_test():
-    # Missing testing: Rate
-    # Need to do error handling later. Make sure that this is what we are using
-
     bucket_name = "bucket_testing_sguada1"
     file = "/proj2_code_github/project-2-22/TestHelperFiles/images.zip"
     file_update = "/proj2_code_github/project-2-22/TestHelperFiles/images1.zip"

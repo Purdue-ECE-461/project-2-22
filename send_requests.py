@@ -44,7 +44,10 @@ def ping_get_package_by_id(package_id):
 
     headers = r.headers
     status_code = r.status_code
-    response = r.json()
+    if int(status_code) == 200:
+        response = r.json()
+    else:
+        response = None
 
     return headers, status_code, response
 

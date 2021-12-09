@@ -182,7 +182,10 @@ def get_package_by_id(id):
     logging.info('get package by ID endpoint; package_id: ' + str(id))
 
     # returns in the format Name Version Filename Url Content
-    ret_data = database_helper.get_package_by_id(id)
+    if isinstance(id, int):
+        ret_data = database_helper.get_package_by_id(id)
+    else:
+        return Response(status=400)
 
     if ret_data is None:
         return Response(status=400)

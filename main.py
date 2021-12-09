@@ -317,6 +317,10 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     int_id = database_helper.get_auto_increment()
     print("Internal ID (auto increment): " + str(int_id))
 
+    if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
+        logging.info('Provided JSON has no URL or Content')
+        return Response(status=400)
+
     frontEnd = 1
     if name == None:
         name = (data_list_dict['metadata']['Name'])
@@ -324,10 +328,6 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         p_id = (data_list_dict['metadata']['ID'])
         url = (data_list_dict['data']['URL'])
         frontEnd = 0
-
-    if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
-        logging.info('Provided JSON has no URL or Content')
-        return Response(status=400)
 
     ingestion = 1
     for key, value in data_list_dict['data'].items():

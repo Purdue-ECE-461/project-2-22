@@ -326,7 +326,10 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     if ingestion == 0:
 
         if frontEnd == 0:
-            content = (data_list_dict['data']['Content'])
+            if 'Content' in data_list_dict['data']:
+                content = (data_list_dict['data']['Content'])
+            else:
+                content = 'None'
 
         encoded_text_to_gcp = str(content)
 

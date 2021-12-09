@@ -358,26 +358,29 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         else:
             status_code = 403
     else:
-        print("ingesting")
-        scores = mainHelper.rate(url)
-        print(scores)
-        ingestible = 1
-        for key, value in scores.items():
-            print(str(key) + ': ' + str(value))
-            if value < 0.5:
-                ingestible = 0
-        if ingestible == 1:
-            conn = database_helper.mysql_connect()
-            if database_helper.is_unique_package(name, version, p_id):
-                database_helper.post_package(name, version, p_id, url, None)
-                status_code = 201
+        if database_helper.is_unique_package(name, version, p_id):
+            print("ingesting")
+            scores = mainHelper.rate(url)
+            print(scores)
+            ingestible = 1
+            for key, value in scores.items():
+                print(str(key) + ': ' + str(value))
+                if value < 0.5:
+                    ingestible = 0
+            if ingestible == 1:
+                conn = database_helper.mysql_connect()
+                if database_helper.is_unique_package(name, version, p_id):
+                    database_helper.post_package(name, version, p_id, url, None)
+                    status_code = 201
+                else:
+                    status_code = 405  # todo: need value to be changed? let's just have that mean uningestible
+                    logging.info("Package was not ingestible")
+                    logging.info("Package URL: " + str(url))
+                database_helper.mysql_close(conn)
             else:
-                status_code = 405  # todo: need value to be changed? let's just have that mean uningestible
-                logging.info("Package was not ingestible")
-                logging.info("Package URL: " + str(url))
-            database_helper.mysql_close(conn)
+                status_code = 405  # todo: need value to be changed?
         else:
-            status_code = 405  # todo: need value to be changed?
+            status_code = 403
 
     if status_code != 201:
         return Response(status=status_code)

@@ -129,6 +129,24 @@ def ping_post_package_no_content(package_name, package_version, package_id, pack
     return headers, status_code
 
 
+# TEST POST PACKAGE
+# Tested
+def ping_post_package_no_data(package_name, package_version, package_id, package_js):
+    payload = {'data':
+                   {'JSProgram': str(package_js)},
+               'metadata':
+                   {'Name': str(package_name), 'Version': str(package_version), 'ID': str(package_id)}
+               }
+
+    r = requests.post(APP_BASE_URL + 'package', json=payload)
+
+    headers = r.headers
+    status_code = r.status_code
+    # response = r.json()  # in dictionary form
+
+    return headers, status_code
+
+
 # TEST RATE PACKAGE
 # tested
 def ping_rate_package_by_id(package_id):

@@ -32,8 +32,8 @@ def test_empty_package():
 
 
 def test_delete_package_by_id():
-    res = send_requests.ping_post_package_no_data(TEST_PACKAGE_NAME, '11.11.11', '78', '')
-    p_id = int(res[1])
+    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '1.11.21', '78', 'https://github.com/cloudinary/cloudinary_npm', '', '')
+    p_id = res[2]['ID']
 
     print(p_id)
 

@@ -35,4 +35,4 @@ jobs:
           export_default_credentials: true
           
       - name: Run tests with pytest
-        run: pytest 
+        run: pytest --verbose

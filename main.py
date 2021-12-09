@@ -30,11 +30,6 @@ MAIN_BUCKET_NAME = "acme_corporation_general"
 def create_token():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
-    # Query your database for username and password
-    # user = User.query.filter_by(username=username, password=password).first()
-    # if user is None:
-    # the user was not found on the database
-    #    return jsonify({"msg": "Bad username or password"}), 401
 
     # create a new token with the user id inside
     access_token = create_access_token(identity=username)
@@ -147,8 +142,6 @@ def get_packages(offset=None):
         # returns list of dictionaries
         packages = database_helper.get_packages(data_list_dict, offset)
 
-        # TODO: database fetching
-
         resp = Response(response=packages,
                         status=200,
                         mimetype="application/json")
@@ -159,8 +152,6 @@ def get_packages(offset=None):
         resp.mimetype = 'application/json'
 
     return resp
-
-    # return render_template('page.html', endpoint='GET: packages')
 
 
 @app.route('/reset', methods=['DELETE'])
@@ -200,14 +191,13 @@ def get_package_by_id(id):
     # read in that text file and assign that to a content variable
 
     try:
-        if (ret_data['Filename'] is None or ret_data['Filename'] == 'None'):
+        if ret_data['Filename'] is None or ret_data['Filename'] == 'None':
             lines = []
         else:
             lines = Download.download_text(filename_to_gcp=ret_data['Filename'],
                                            destination_bucket_gcp=MAIN_BUCKET_NAME)
 
         print(lines)
-
         data = {
             "metadata": {
                 "Name": ret_data['Name'],
@@ -283,7 +273,6 @@ def delete_package_by_id(id):
     print(id)
     logging.info('Delete package by ID: ' + str(id))
     filename = database_helper.delete_package_by_id(id)
-    # TODO: Need name of the package for GCP
     try:
         if filename is not None:
             Delete.delete_object_safe(
@@ -304,13 +293,13 @@ def delete_package_by_id(id):
 @app.route('/package', methods=['POST'])
 def post_package(name=None, content=None, version=None, url=None, jsprogram=None):
     logging.info('Enter Post Package Endpoint')
-    # these variables are None if the requests are done via postman, they are not None if done by front end
 
-    if name == None:
+    # these variables are None if the requests are done via postman, they are not None if done by front end
+    if name is None:
         header = request.headers.get('X-Authorization')
         print(header)
 
-    if name == None:
+    if name is None:
         d = (str(request.data.decode('utf-8')))
         data_list_dict = json.loads(d)
 
@@ -322,7 +311,7 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         return Response(status=400)
 
     frontEnd = 1
-    if name == None:
+    if name is None:
         name = (data_list_dict['metadata']['Name'])
         version = (data_list_dict['metadata']['Version'])
         p_id = (data_list_dict['metadata']['ID'])
@@ -373,12 +362,12 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
                     database_helper.post_package(name, version, p_id, url, None)
                     status_code = 201
                 else:
-                    status_code = 405  # todo: need value to be changed? let's just have that mean uningestible
+                    status_code = 405
                     logging.info("Package was not ingestible")
                     logging.info("Package URL: " + str(url))
                 database_helper.mysql_close(conn)
             else:
-                status_code = 405  # todo: need value to be changed?
+                status_code = 405
         else:
             status_code = 403
 
@@ -408,7 +397,6 @@ def rate_package_by_id(id):
     }
 
     # get package variables
-
     variables = database_helper.get_package_by_id(id)
 
     if variables is None:
@@ -416,21 +404,18 @@ def rate_package_by_id(id):
 
     status_code = 200
 
-    if variables['URL'] == "":  # no URL, get from package.json
-        # TODO: file = decode(variables['Filename'] ---> Santiago's code
+    # no URL, get from package.json
+    if variables['URL'] == "":
         print(variables['Filename'])
         content_string = Download.download_text(variables['Filename'], MAIN_BUCKET_NAME)
-        # file = Decode.decode_base64("/tmp/output.zip", content_string)
         Decode.decode_base64("/tmp/output.zip", content_string)
-        # It should be something like
-        # jsonFile = mainHelper.getPackageJson(file)  # TODO: change input to file
         jsonFile = mainHelper.getPackageJson("/tmp/output.zip")
-        if jsonFile != None:
+        if jsonFile is not None:
             url = mainHelper.getURL('/tmp/' + jsonFile)
             logging.info("Rate package by ID: URL from JSON file: " + str(url))
-            if url != None:
+            if url is not None:
                 data = mainHelper.rate(url)
-    else:  # use URL
+    else:
         try:
             data = mainHelper.rate(variables['URL'])
             status_code = 200
@@ -439,14 +424,10 @@ def rate_package_by_id(id):
             print(str(e))
             status_code = 500
 
-
     r = make_response(data)
     r.status_code = status_code
     r.mimetype = 'application/json'
-    # TODO: return 400 for no such package; return 500 for failure in rating
     return r
-
-    # return render_template('page.html', endpoint=('GET: package/' + str(id)) + '/rate')
 
 
 @app.route('/authenticate', methods=['PUT'])
@@ -470,21 +451,14 @@ def authenticate():
 @app.route('/package/byName/<name>', methods=['GET'])
 def get_package_by_name(name):
     print(name)
-    # on success return package history
-    # on no such package return 400
-    # on error default
 
     database_helper.get_package_by_name(name)
-
     data = database_helper.get_package_by_name_history(name)
 
     if len(data) == 0:
         return Response(status=400)
-
     print(data)
-
     data_list = []
-
     for d in data:
         new_dict = {'User': {
             'Name': 'No User',
@@ -498,9 +472,7 @@ def get_package_by_name(name):
             },
             'Action': d[6]}
         data_list.append(new_dict)
-
     r = json.dumps(data_list)
-
     return Response(response=r,
                     status=200,
                     mimetype="application/json")
@@ -509,17 +481,12 @@ def get_package_by_name(name):
 @app.route('/package/byName/<name>', methods=['DELETE'])
 def delete_package_by_name(name):
     logging.info("Delete package by name: " + str(name))
-
     if len(database_helper.get_package_by_name(name)) == 0:
         return Response(status=400)
-
     filenames = database_helper.get_file_names(name)
     logging.warning(filenames)
     database_helper.delete_package_by_name(name)
-    # Delete file from GCP
-
     status_code = 200
-
     try:
         if len(filenames) > 0:
             for fname in filenames:

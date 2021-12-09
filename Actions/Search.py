@@ -1,12 +1,8 @@
 import logging
-
-from Actions import List
-import os
 from Actions import List
 from Actions import Create
 
 
-# There should be an action that clones the module from npm to then download it
 def find_bucket(name_searching):
     searching_words = get_words(name_searching)
 

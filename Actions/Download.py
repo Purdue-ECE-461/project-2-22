@@ -23,4 +23,3 @@ def download_bucket(source_bucket_gcp, destination_folder_local):
         os.system(f"gsutil -m cp -r {source_bucket_gcp} {destination_folder_local}")
     else:
         print("Folder path does not exists in local machine")
-

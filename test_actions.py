@@ -11,7 +11,7 @@ BUCKET = 'acme_corporation_general'
 download_file = 'test_data.txt.txt'
 DEST_FOLDER = 'downloaded_files'
 
-# todo with new code
+
 def test_upload_download():
     # make a string
     letters = string.ascii_letters
@@ -36,6 +36,7 @@ def test_upload_download():
 
     assert (data == upload_str)
 
+
 if __name__ == '__main__':
     # make a string
     letters = string.ascii_letters
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     encoded_text_file = upload_str
     complete_zip_file_path = Decode.string_to_text_file(encoded_text=encoded_text_file,
                                                         text_file_folder_path=current_path,
-                                                        filename=upload_str[0] + 'test_upload.txt')
+                                                        filename_original=upload_str[0] + 'test_upload.txt')
     print("saved")
     Upload.upload_file(upload_str[0] + 'test_upload.txt', BUCKET)
     print("uploaded")

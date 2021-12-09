@@ -31,6 +31,23 @@ def test_empty_package():
     assert status_code == 400
 
 
+def test_delete_package_by_id():
+    res = send_requests.ping_post_package_no_data(TEST_PACKAGE_NAME, '11.11.11', '78', '')
+    p_id = int(res[1])
+
+    print(p_id)
+
+    res = send_requests.ping_delete_package_by_id(p_id)
+
+    print(res)
+
+    assert int(res[1]) == 200
+
+    res = send_requests.ping_get_package_by_id(p_id)
+
+    assert int(res[1]) == 400
+
+
 def test_upload_repeat_package():
     res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                                           '')
@@ -85,6 +102,12 @@ def test_no_ingestion():
     code = res[1]
 
     assert code == 201
+
+
+def test_get_packages_one_version():
+    resp = send_requests.ping_get_packages('3.1.2', TEST_PACKAGE_NAME)
+    packages = len(resp[2])
+    assert packages == 1
 
 
 def test_get_packages_tilde():

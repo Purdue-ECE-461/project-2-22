@@ -6,8 +6,8 @@ import os
 from os.path import basename
 import shutil
 
-# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-APP_BASE_URL = r'http://127.0.0.1:8080/'
+APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+# APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES

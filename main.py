@@ -164,7 +164,7 @@ def delete_all_packages():
             database_helper.delete_all_packages()
             status_code = 200
             # Cloud Storage: Reset bucket to default, empty all objects
-            ResetDefault.reset_default(MAIN_BUCKET_NAME)
+            # ResetDefault.reset_default(MAIN_BUCKET_NAME)
         else:
             status_code = 401
 
@@ -309,6 +309,10 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     int_id = database_helper.get_auto_increment()
     print("Internal ID (auto increment): " + str(int_id))
 
+    if 'data' not in data_list_dict:
+        logging.info("provided json has no data")
+        return Response(status=400)
+
     if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
         logging.info('Provided JSON has no URL or Content')
         return Response(status=400)
@@ -403,7 +407,11 @@ def rate_package_by_id(id):
     }
 
     # get package variables
-    variables = database_helper.get_package_by_id(id)
+
+    if isinstance(id, int):
+        variables = database_helper.get_package_by_id(id)
+    else:
+        return Response(status=400)
 
     if variables is None:
         return Response(status=400)
@@ -436,7 +444,7 @@ def rate_package_by_id(id):
     return r
 
 
-@app.route('/authenticate', methods=['PUT'])
+@app.route('/authenticate_test', methods=['PUT'])
 def authenticate():
     root_parser = reqparse.RequestParser()
     root_parser.add_argument('User', type=dict)

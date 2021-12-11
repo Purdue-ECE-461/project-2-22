@@ -6,8 +6,8 @@ import os
 from os.path import basename
 import shutil
 
-APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-# APP_BASE_URL = r'http://127.0.0.1:8080/'
+# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     print(res)'''
 
 
-    res = ping_post_package('alia', '10.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+    '''res = ping_post_package('alia', '10.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                             'alia')
     res = ping_post_package('alia', '9.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                             'alia')
@@ -232,13 +232,13 @@ if __name__ == '__main__':
     res = ping_post_package('alia', '3.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
                             'alia')
     res = ping_post_package('alia', '2.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
-                            'alia')
-    res = ping_post_package('alia', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
-                            'alia')
+                            'alia')'''
+    #res = ping_post_package('alia', '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+    #                        'alia')
     #print(res)
     #p_id = res[2]['ID']
 
-    # print(ping_get_package_by_id('211'))
+    print(ping_get_package_by_id(503))
 
     # print(ping_post_package('Cloudier', '3.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
     #                         'hello'))

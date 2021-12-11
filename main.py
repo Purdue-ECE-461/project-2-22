@@ -48,13 +48,13 @@ def protected():
 
 @app.route('/')
 def root():
-    logging.info("Root Endpoint Reached")
+    print("Root Endpoint Reached")
     if os.environ.get('GAE_ENV') == 'standard' or True:
         # If deployed, use the local socket interface for accessing Cloud SQL
         unix_socket = '/cloudsql/{}'.format(database_helper.db_connection_name)
         cnx = pymysql.connect(user=database_helper.db_user, password=database_helper.db_password,
                               unix_socket=unix_socket, db=database_helper.db_name)
-        logging.info("Root connected to database")
+        print("Root connected to database")
     else:
         # If running locally, use the TCP connections instead
         # Set up Cloud SQL Proxy (cloud.google.com/sql/docs/mysql/sql-proxy)
@@ -129,12 +129,12 @@ def get_packages(offset=None):
     try:
         if offset == None:
             offset = request.args.get('offset')
-            logging.info('Offset in get packages: ' + str(offset))
+            print('Offset in get packages: ' + str(offset))
             header = request.headers.get('Content-Type')
             print(header)
 
         d = (str(request.data.decode('utf-8')))
-        logging.info('/packages POST data: ' + d)
+        print('/packages POST data: ' + d)
         print(d)
         data_list_dict = json.loads(d)
         print(data_list_dict)
@@ -156,7 +156,7 @@ def get_packages(offset=None):
 
 @app.route('/reset', methods=['DELETE'])
 def delete_all_packages():
-    logging.info('/reset')
+    print('/reset')
     try:
         permission = True
 
@@ -179,15 +179,18 @@ def delete_all_packages():
 
 @app.route('/package/<id>', methods=['GET'])
 def get_package_by_id(id):
-    logging.info('get package by ID endpoint; package_id: ' + str(id))
+    print('get package by ID endpoint; package_id: ' + str(id))
 
     # returns in the format Name Version Filename Url Content
-    if isinstance(id, int):
+    if id.isdigit():
         ret_data = database_helper.get_package_by_id(id)
+
     else:
+        print("Id is not an integer")
         return Response(status=400)
 
     if ret_data is None:
+        print("ret data is non")
         return Response(status=400)
 
     # take ret_data[content] with the bucket path and put that into a text file
@@ -230,11 +233,11 @@ def get_package_by_id(id):
 def update_package(id):
     # the name, version, and ID must match
     # the package contents will replace the previous contents
-    logging.info("Update Package; ID: " + str(id))
+    print("Update Package; ID: " + str(id))
 
     try:
         d = (str(request.data.decode('utf-8')))
-        logging.info('Update Package Data: ' + d)
+        print('Update Package Data: ' + d)
         data_list_dict = json.loads(d)
 
         # args = message_parser.parse_args(req=root_args)
@@ -274,7 +277,7 @@ def update_package(id):
 @app.route('/package/<id>', methods=['DELETE'])
 def delete_package_by_id(id):
     print(id)
-    logging.info('Delete package by ID: ' + str(id))
+    print('Delete package by ID: ' + str(id))
     filename = database_helper.delete_package_by_id(id)
     try:
         if filename is not None:
@@ -295,7 +298,7 @@ def delete_package_by_id(id):
 
 @app.route('/package', methods=['POST'])
 def post_package(name=None, content=None, version=None, url=None, jsprogram=None):
-    logging.info('Enter Post Package Endpoint')
+    print('Enter Post Package Endpoint')
 
     # these variables are None if the requests are done via postman, they are not None if done by front end
     if name is None:
@@ -310,11 +313,11 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     print("Internal ID (auto increment): " + str(int_id))
 
     if 'data' not in data_list_dict:
-        logging.info("provided json has no data")
+        print("provided json has no data")
         return Response(status=400)
 
     if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
-        logging.info('Provided JSON has no URL or Content')
+        print('Provided JSON has no URL or Content')
         return Response(status=400)
 
     frontEnd = 1
@@ -373,8 +376,8 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
                     status_code = 201
                 else:
                     status_code = 405
-                    logging.info("Package was not ingestible")
-                    logging.info("Package URL: " + str(url))
+                    print("Package was not ingestible")
+                    print("Package URL: " + str(url))
                 database_helper.mysql_close(conn)
             else:
                 status_code = 405
@@ -394,7 +397,7 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
 
 @app.route('/package/<id>/rate', methods=['GET'])
 def rate_package_by_id(id):
-    logging.info("Rate package by ID: " + str(id))
+    print("Rate package by ID: " + str(id))
     print(id)
     # if successful rating
     data = {
@@ -408,7 +411,7 @@ def rate_package_by_id(id):
 
     # get package variables
 
-    if isinstance(id, int):
+    if id.isdigit():
         variables = database_helper.get_package_by_id(id)
     else:
         return Response(status=400)
@@ -426,7 +429,7 @@ def rate_package_by_id(id):
         jsonFile = mainHelper.getPackageJson("/tmp/output.zip")
         if jsonFile is not None:
             url = mainHelper.getURL('/tmp/' + jsonFile)
-            logging.info("Rate package by ID: URL from JSON file: " + str(url))
+            print("Rate package by ID: URL from JSON file: " + str(url))
             if url is not None:
                 data = mainHelper.rate(url)
     else:
@@ -494,7 +497,7 @@ def get_package_by_name(name):
 
 @app.route('/package/byName/<name>', methods=['DELETE'])
 def delete_package_by_name(name):
-    logging.info("Delete package by name: " + str(name))
+    print("Delete package by name: " + str(name))
     if len(database_helper.get_package_by_name(name)) == 0:
         return Response(status=400)
     filenames = database_helper.get_file_names(name)
@@ -506,7 +509,7 @@ def delete_package_by_name(name):
             for fname in filenames:
                 logging.warning(fname)
                 filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
-                logging.info(filename_in_gcp.name)
+                print(filename_in_gcp.name)
                 if filename_in_gcp:
                     Delete.delete_object_safe(
                         bucket_name=MAIN_BUCKET_NAME,

@@ -6,8 +6,8 @@ import os
 from os.path import basename
 import shutil
 
-APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-# APP_BASE_URL = r'http://127.0.0.1:8080/'
+# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -127,9 +127,12 @@ def ping_post_package_no_content(package_name, package_version, package_id, pack
 
     headers = r.headers
     status_code = r.status_code
-    # response = r.json()  # in dictionary form
+    if status_code == 201:
+        response = r.json()  # in dictionary form
+    else:
+        response = None
 
-    return headers, status_code
+    return headers, status_code, response
 
 
 # TEST POST PACKAGE
@@ -268,10 +271,15 @@ if __name__ == '__main__':
     #print(res)
     #p_id = res[2]['ID']
 
-    print(ping_get_package_by_id(503))
+    # print(ping_get_package_by_id(503))
 
     # print(ping_post_package('Cloudier', '3.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
     #                         'hello'))
 
     # ping_delete_package_by_name('Cloudier')
+
+    res = ping_post_package_no_content("testy", '1.0.0', '78',
+                                                     'https://github.com/cloudinary/cloudinary_npm', ''
+                                                     )
+    print(res)
 

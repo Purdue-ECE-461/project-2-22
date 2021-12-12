@@ -9,11 +9,10 @@ TEST_PACKAGE_NAME = 'Cloudy_Test'
 
 def test_rate():
     res = send_requests.ping_post_package_no_content(TEST_PACKAGE_NAME, '1.0.0', '78',
-                                                     'https://github.com/prettier/prettier', ''
-                                                     )
-    p_id = res[2]['ID']
-
+                                                     'https://github.com/prettier/prettier', '')
     print(res)
+    
+    p_id = res[2]['ID']
 
     print(p_id)
 

@@ -68,6 +68,22 @@ def test_delete_package_by_id():
     assert int(res[1]) == 400
 
 
+def test_bad_package_get():
+    res = send_requests.ping_get_package_by_id('invalid')
+
+    print(res)
+
+    assert str(res[1]) == '400'
+
+
+def test_bad_package_rate():
+    res = send_requests.ping_rate_package_by_id('invalid')
+
+    print(res)
+
+    assert str(res[1]) == '400'
+
+
 def test_upload_repeat_package():
     res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '1.0.0', '78',
                                           'https://github.com/cloudinary/cloudinary_npm', '',

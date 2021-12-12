@@ -239,6 +239,9 @@ def update_package(id):
     # the package contents will replace the previous contents
     print("Update Package; ID: " + str(id))
 
+    if not id.isdigit():
+        return Response(status=403)
+
     try:
         d = (str(request.data.decode('utf-8')))
         print('Update Package Data: ' + d)
@@ -249,20 +252,23 @@ def update_package(id):
         version = (data_list_dict['metadata']['Version'])
         p_id = (data_list_dict['metadata']['ID'])
 
+
+
         if 'Content' in data_list_dict['data']:
-            print('Content found')
-            if database_helper.package_exists(name, version, id):
-                database_helper.update_package(name, version, p_id, database_helper.get_url_from_id(p_id),
-                                               database_helper.get_filename_from_id(p_id))
-                Update.update_file(
-                    bucket_name=MAIN_BUCKET_NAME,
-                    object_name=database_helper.get_filename_from_id(p_id)[:-4],
-                    content=data_list_dict['data']['Content']
-                )
-                status_code = 200
-            else:
-                print("Package does not exist")
-                status_code = 403
+            if str(data_list_dict['data']['Content']).lower() != 'null' and str(data_list_dict['data']['Content']).lower() != 'none':
+                print('Content found')
+                if database_helper.package_exists(name, version, id):
+                    database_helper.update_package(name, version, p_id, database_helper.get_url_from_id(p_id),
+                                                   database_helper.get_filename_from_id(p_id))
+                    Update.update_file(
+                        bucket_name=MAIN_BUCKET_NAME,
+                        object_name=database_helper.get_filename_from_id(p_id)[:-4],
+                        content=data_list_dict['data']['Content']
+                    )
+                    status_code = 200
+                else:
+                    print("Package does not exist")
+                    status_code = 403
         elif 'URL' in data_list_dict['data']:
             print('URL found')
             if database_helper.package_exists(name, version, id):

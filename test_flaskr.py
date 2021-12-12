@@ -20,7 +20,7 @@ def test_rate():
 
     print(res)
 
-    assert res[2]['GoodPinningPractice'] == 1
+    assert round(res[2]['GoodPinningPractice']) == 1
 
 
 def test_empty_package():

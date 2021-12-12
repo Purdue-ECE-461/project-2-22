@@ -530,7 +530,11 @@ def delete_package_by_name(name):
     if len(database_helper.get_package_by_name(name)) == 0:
         return Response(status=400)
     filenames = database_helper.get_file_names(name)
+
+    filenames = [fname for fname in filenames if str(fname) != 'None']
+
     print("FILENAMES TO DELETE: " + str(filenames))
+
     database_helper.delete_package_by_name(name)
     status_code = 200
     try:

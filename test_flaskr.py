@@ -9,7 +9,7 @@ TEST_PACKAGE_NAME = 'Cloudy_Test'
 
 def test_rate():
     res = send_requests.ping_post_package_no_content(TEST_PACKAGE_NAME, '1.0.0', '78',
-                                                     'https://github.com/cloudinary/cloudinary_npm', ''
+                                                     'https://github.com/prettier/prettier', ''
                                                      )
     p_id = res[2]['ID']
 
@@ -21,7 +21,7 @@ def test_rate():
 
     print(res)
 
-    assert res[2]['BusFactor'] == 0.5
+    assert res[2]['GoodPinningPractice'] == 1
 
 
 def test_empty_package():

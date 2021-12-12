@@ -338,9 +338,9 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
         return Response(status=400)
 
     if 'Content' in data_list_dict['data']:
-        print("Provided JSON has no content")
         content = (data_list_dict['data']['Content'])
     else:
+        print("Provided JSON has no content")
         content = 'None'
 
     if 'URL' in data_list_dict['data']:

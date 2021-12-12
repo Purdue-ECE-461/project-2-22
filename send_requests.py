@@ -6,8 +6,8 @@ import os
 from os.path import basename
 import shutil
 
-# APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
-APP_BASE_URL = r'http://127.0.0.1:8080/'
+APP_BASE_URL = r"https://ece-461-project-2-22.ue.r.appspot.com/"
+# APP_BASE_URL = r'http://127.0.0.1:8080/'
 
 
 # TESTING GET PACKAGES
@@ -137,6 +137,36 @@ def ping_post_package_no_content(package_name, package_version, package_id, pack
 def ping_post_package_no_data(package_name, package_version, package_id, package_js):
     payload = {'data':
                    {'JSProgram': str(package_js)},
+               'metadata':
+                   {'Name': str(package_name), 'Version': str(package_version), 'ID': str(package_id)}
+               }
+
+    r = requests.post(APP_BASE_URL + 'package', json=payload)
+
+    headers = r.headers
+    status_code = r.status_code
+    # response = r.json()  # in dictionary form
+
+    return headers, status_code
+
+
+def ping_post_package_no_data_v2(package_name, package_version, package_id, package_js):
+    payload = {'data': {},
+               'metadata':
+                   {'Name': str(package_name), 'Version': str(package_version), 'ID': str(package_id)}
+               }
+
+    r = requests.post(APP_BASE_URL + 'package', json=payload)
+
+    headers = r.headers
+    status_code = r.status_code
+    # response = r.json()  # in dictionary form
+
+    return headers, status_code
+
+
+def ping_post_package_no_data_v3(package_name, package_version, package_id, package_js):
+    payload = {
                'metadata':
                    {'Name': str(package_name), 'Version': str(package_version), 'ID': str(package_id)}
                }

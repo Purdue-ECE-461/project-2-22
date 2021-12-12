@@ -126,6 +126,7 @@ def start():
 
 @app.route('/packages', methods=['POST'])
 def get_packages(offset=None):
+    print("GET PACKAGES START")
     try:
         if offset == None:
             offset = request.args.get('offset')
@@ -135,9 +136,8 @@ def get_packages(offset=None):
 
         d = (str(request.data.decode('utf-8')))
         print('/packages POST data: ' + d)
-        print(d)
         data_list_dict = json.loads(d)
-        print(data_list_dict)
+        print('GET PACKAGES DATA: ' + str(data_list_dict))
 
         # returns list of dictionaries
         packages = database_helper.get_packages(data_list_dict, offset)
@@ -145,6 +145,7 @@ def get_packages(offset=None):
         resp = Response(response=packages,
                         status=200,
                         mimetype="application/json")
+        print("GET PACKAGES END")
     except Exception as e:
         logging.error(str(e))
         print(str(e))
@@ -164,7 +165,8 @@ def delete_all_packages():
             database_helper.delete_all_packages()
             status_code = 200
             # Cloud Storage: Reset bucket to default, empty all objects
-            # ResetDefault.reset_default(MAIN_BUCKET_NAME)
+            ResetDefault.reset_default(MAIN_BUCKET_NAME)
+            print("reset success")
         else:
             status_code = 401
 
@@ -184,19 +186,21 @@ def get_package_by_id(id):
     # returns in the format Name Version Filename Url Content
     if id.isdigit():
         ret_data = database_helper.get_package_by_id(id)
-
     else:
         print("Id is not an integer")
         return Response(status=400)
 
     if ret_data is None:
-        print("ret data is non")
+        print("ret data is none")
         return Response(status=400)
+
+    print("GET PACKAGE BY ID DATA: " + str(ret_data))
 
     # take ret_data[content] with the bucket path and put that into a text file
     # read in that text file and assign that to a content variable
 
     try:
+        print(str(ret_data['Filename']))
         if ret_data['Filename'] is None or ret_data['Filename'] == 'None':
             lines = []
         else:
@@ -257,6 +261,7 @@ def update_package(id):
                 )
                 status_code = 200
             else:
+                print("Package does not exist")
                 status_code = 403
         elif 'URL' in data_list_dict['data']:
             print('URL found')
@@ -265,11 +270,13 @@ def update_package(id):
                                                database_helper.get_filename_from_id(p_id))
                 status_code = 200
             else:
+                print("Package does not exist")
                 status_code = 403
     except Exception as e:
         logging.error(str(e))
         print(str(e))
         status_code = 500
+
 
     return Response(status=status_code)
 
@@ -278,7 +285,13 @@ def update_package(id):
 def delete_package_by_id(id):
     print(id)
     print('Delete package by ID: ' + str(id))
-    filename = database_helper.delete_package_by_id(id)
+
+    if id.isdigit():
+        filename = database_helper.delete_package_by_id(id)
+    else:
+        print("id not found or not a digit")
+        return Response(status=400)
+
     try:
         if filename is not None:
             Delete.delete_object_safe(
@@ -312,20 +325,35 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
     int_id = database_helper.get_auto_increment()
     print("Internal ID (auto increment): " + str(int_id))
 
-    if 'data' not in data_list_dict:
-        print("provided json has no data")
+    try:
+        if 'data' not in data_list_dict:
+            print("provided json has no data")
+            return Response(status=400)
+
+        if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
+            print('Provided JSON has no URL or Content')
+            return Response(status=400)
+    except Exception as e:
+        print(str(e))
         return Response(status=400)
 
-    if 'URL' not in data_list_dict['data'] and 'Content' not in data_list_dict['data']:
-        print('Provided JSON has no URL or Content')
-        return Response(status=400)
+    if 'Content' in data_list_dict['data']:
+        print("Provided JSON has no content")
+        content = (data_list_dict['data']['Content'])
+    else:
+        content = 'None'
+
+    if 'URL' in data_list_dict['data']:
+        print("Provided JSON has no URL")
+        url = (data_list_dict['data']['URL'])
+    else:
+        url = ""
 
     frontEnd = 1
     if name is None:
         name = (data_list_dict['metadata']['Name'])
         version = (data_list_dict['metadata']['Version'])
         p_id = (data_list_dict['metadata']['ID'])
-        url = (data_list_dict['data']['URL'])
         frontEnd = 0
 
     ingestion = 1
@@ -398,7 +426,6 @@ def post_package(name=None, content=None, version=None, url=None, jsprogram=None
 @app.route('/package/<id>/rate', methods=['GET'])
 def rate_package_by_id(id):
     print("Rate package by ID: " + str(id))
-    print(id)
     # if successful rating
     data = {
         "BusFactor": 0,
@@ -424,6 +451,7 @@ def rate_package_by_id(id):
     # no URL, get from package.json
     if variables['URL'] == "":
         print(variables['Filename'])
+        print("No URL uploaded, getting repository from package.json")
         content_string = Download.download_text(variables['Filename'], MAIN_BUCKET_NAME)
         Decode.decode_base64("/tmp/output.zip", content_string)
         jsonFile = mainHelper.getPackageJson("/tmp/output.zip")
@@ -439,7 +467,7 @@ def rate_package_by_id(id):
         except Exception as e:
             logging.error(str(e))
             print(str(e))
-            status_code = 500
+            return Response(status=500)
 
     r = make_response(data)
     r.status_code = status_code
@@ -467,14 +495,15 @@ def authenticate():
 
 @app.route('/package/byName/<name>', methods=['GET'])
 def get_package_by_name(name):
-    print(name)
+    print("GET PACKAGE HISTORY BY NAME: " + str(name))
 
     database_helper.get_package_by_name(name)
     data = database_helper.get_package_by_name_history(name)
 
     if len(data) == 0:
+        print("Name not found")
         return Response(status=400)
-    print(data)
+    print("PACKAGE HISTORY DATA: " + str(data))
     data_list = []
     for d in data:
         new_dict = {'User': {
@@ -501,15 +530,15 @@ def delete_package_by_name(name):
     if len(database_helper.get_package_by_name(name)) == 0:
         return Response(status=400)
     filenames = database_helper.get_file_names(name)
-    logging.warning(filenames)
+    print("FILENAMES TO DELETE: " + str(filenames))
     database_helper.delete_package_by_name(name)
     status_code = 200
     try:
         if len(filenames) > 0:
             for fname in filenames:
-                logging.warning(fname)
+                print("FILENAME: " + str(fname))
                 filename_in_gcp = Search.find_object(MAIN_BUCKET_NAME, fname)
-                print(filename_in_gcp.name)
+                print("FOUND FILENAME IN GCP" + str(filename_in_gcp.name))
                 if filename_in_gcp:
                     Delete.delete_object_safe(
                         bucket_name=MAIN_BUCKET_NAME,

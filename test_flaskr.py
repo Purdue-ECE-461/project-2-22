@@ -6,9 +6,11 @@ from Actions import Download
 MAIN_BUCKET_NAME = "acme_corporation_general"
 TEST_PACKAGE_NAME = 'Cloudy_Test'
 
+
 def test_rate():
-    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
-                                          '')
+    res = send_requests.ping_post_package_no_content(TEST_PACKAGE_NAME, '1.0.0', '78',
+                                                     'https://github.com/cloudinary/cloudinary_npm', ''
+                                                     )
     p_id = res[2]['ID']
 
     print(res)
@@ -31,8 +33,27 @@ def test_empty_package():
     assert status_code == 400
 
 
+def test_no_data_dict():
+    res = send_requests.ping_post_package_no_data_v2(TEST_PACKAGE_NAME, '11.0.0', '78', '')
+    status_code = int(res[1])
+
+    print(status_code)
+
+    assert status_code == 400
+
+
+def test_no_data():
+    res = send_requests.ping_post_package_no_data_v3(TEST_PACKAGE_NAME, '11.0.0', '78', '')
+    status_code = int(res[1])
+
+    print(status_code)
+
+    assert status_code == 400
+
+
 def test_delete_package_by_id():
-    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '1.11.21', '78', 'https://github.com/cloudinary/cloudinary_npm', '', '')
+    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '1.11.21', '78',
+                                          'https://github.com/cloudinary/cloudinary_npm', '', '')
     p_id = res[2]['ID']
 
     print(p_id)
@@ -49,7 +70,8 @@ def test_delete_package_by_id():
 
 
 def test_upload_repeat_package():
-    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '1.0.0', '78', 'https://github.com/cloudinary/cloudinary_npm', '',
+    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '1.0.0', '78',
+                                          'https://github.com/cloudinary/cloudinary_npm', '',
                                           '')
     status_code = int(res[1])
 
@@ -97,7 +119,8 @@ def test_rate_content_string_prettier():
 
 
 def test_no_ingestion():
-    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '3.1.2', '68', 'https://github.com/cloudinary/cloudinary_npm', '',
+    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '3.1.2', '68',
+                                          'https://github.com/cloudinary/cloudinary_npm', '',
                                           'cloudy with a chance of meatballs')
     code = res[1]
 

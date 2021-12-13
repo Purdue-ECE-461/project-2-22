@@ -126,10 +126,10 @@ def test_update_content_string():
 
 def test_update_url():
     url = "https://github.com/prettier/prettier"
-    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '6.0.0', '78', url, '',
+    res = send_requests.ping_post_package(TEST_PACKAGE_NAME, '7.0.6', '78', url, '',
                                           None)
     p_id = res[2]['ID']
-    res = send_requests.ping_update_package_by_id(TEST_PACKAGE_NAME, '6.0.0', str(p_id), url,
+    res = send_requests.ping_update_package_by_id(TEST_PACKAGE_NAME, '7.0.6', str(p_id), url,
                                                   None)
     assert str(res[1]) == '200'
 

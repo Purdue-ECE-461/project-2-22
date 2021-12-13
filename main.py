@@ -253,7 +253,8 @@ def update_package(id):
         p_id = (data_list_dict['metadata']['ID'])
 
         if 'Content' in data_list_dict['data']:
-            if str(data_list_dict['data']['Content']).lower != 'null' and str(data_list_dict['data']['Content']).lower != 'none':
+            print(len(str(data_list_dict['data']['Content'])))
+            if str(data_list_dict['data']['Content']).lower != 'null' and str(data_list_dict['data']['Content']).lower != 'none' and len(str(data_list_dict['data']['Content'])) != 4:
                 content_found = True
             else:
                 content_found = False

@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+
+# Main.py
+# Created by Charles Pisciotta
+# September 15, 2021
+# Modified by Jason Lei (September 23, 2021, September 28, 2021)
+
+import sys
+from Interface.Input.InputInterface import InputInterface
+from Interface.Output.OutputInterface import OutputInterface
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print('Only accepts 2 command line arguments.')
+        print('./run <\'install\', \'test\', or a file.>')
+        sys.exit(2)
+
+    # Get user input
+    inputInterface = InputInterface()
+    mode, packageUrlList = inputInterface.determineMode(sys.argv[1])
+    # print("system is now in %s mode" % mode)
+
+    result = ""
+
+    # Rank mode - Result should be in the form of a string with each url and their scores.
+    # See ScoreCard/AllScores for more info
+    if mode == 'rank':
+        from Fetching.PackageFetcher import PackageFetcher
+
+        from ScoreCard.AllScores import AllScores
+        from ScoreCard.PackageScoreCard import PackageScoreCard
+        from Scoring.BusFactor.BusFactorScore import BusFactorScore
+        from Scoring.Correctness.CorrectnessScore import CorrectnessScore
+        from Scoring.LicenseCompatibility.LicenseCompatibilityScore import LicenseCompatibilityScore
+        from Scoring.RampUp.RampUpTimeScore import RampUpTimeScore
+        from Scoring.Responsiveness.ResponsivenessScore import ResponsivenessScore
+        from Scoring.TotalScore.TotalScore import TotalScore
+
+        scoreCardList = []
+        # Get all packages and their corresponding scores
+        for url in packageUrlList:
+            # print(url)
+            # Fetch Package
+            packageFetcher = PackageFetcher(url)
+            package = packageFetcher.fetchPackage()
+
+            # Get License Score
+            licenseCompatibilityScorer = LicenseCompatibilityScore(package)
+            licenseCompatibility = licenseCompatibilityScorer.score()
+
+            # Get Correctness Score
+            correctnessScorer = CorrectnessScore(package)
+            correctness = correctnessScorer.score()
+
+            # Get Bus Factor Score
+            busFactorScorer = BusFactorScore(package)
+            busFactor = busFactorScorer.score()
+
+            # Get Ramp Up Score
+            rampUpScorer = RampUpTimeScore(package)
+            rampUp = rampUpScorer.score()
+
+            # Get Responsiveness Score
+            responsivenessScorer = ResponsivenessScore(package)
+            responsiveness = responsivenessScorer.score()
+
+            # Get Dependency Score - NEW
+            from Scoring.Dependency.DependencyScore import DependencyScore
+            dependencyScorer = DependencyScore(package)
+            dependency = dependencyScorer.score()
+
+            # Get Total Score
+            scores = [
+                busFactor,
+                correctness,
+                licenseCompatibility,
+                rampUp,
+                responsiveness,
+                dependency]
+            totalScorer = TotalScore(scores)
+            totalScore = totalScorer.score()
+
+            # Generate a score card for this package
+            scoreCard = PackageScoreCard(url,
+                                         total_score=totalScore,
+                                         bus_factor_score=busFactor,
+                                         correctness_score=correctness,
+                                         license_score=licenseCompatibility,
+                                         ramp_up_score=rampUp,
+                                         responsiveness_score=responsiveness,
+                                         dependency_score=dependency)
+
+            scoreCardList.append(scoreCard)
+
+        allScores = AllScores(scoreCardList)
+        result = allScores.toString()
+
+    # Install mode
+    # Returns the number of dependencies installed (int)
+    elif mode == 'install':
+        from Installer import Installer
+        result = Installer.install_dependencies()
+
+    # Test mode (result should be in the form of a list [tests_passed,
+    # total_tests]
+    elif mode == 'test':
+        import unittest
+        import Interface.Input.InputInterfaceTests as iitests
+        import Interface.Output.OutputInterfaceTests as oitests
+        import Models.PackageTests as pkgtests
+        import ScoreCard.AllScoresTest as allscoretests
+        import ScoreCard.PackageScoreCardTest as psctests
+        import Scoring.BusFactor.BusFactorScoreTests as bfscoretests
+        import Scoring.LicenseCompatibility.LicenseCompatibilityTests as lcscoretests
+        import Scoring.RampUp.RampUpTimeScoreTests as rutscoretests
+        import Scoring.Responsiveness.ResponsivenessScoreTests as rscoretests
+        import Scoring.TotalScore.TotalScoreTest as tstests
+
+        failures = 0
+        total = 0
+        tests = [
+            iitests,
+            oitests,
+            pkgtests,
+            allscoretests,
+            psctests,
+            bfscoretests,
+            bfscoretests,
+            lcscoretests,
+            rutscoretests,
+            rscoretests,
+            tstests]
+        for test in tests:
+            suite = unittest.TestLoader().loadTestsFromModule(test)
+            testSuite = unittest.TextTestRunner(verbosity=0).run(suite)
+            failures += len(testSuite.failures)
+            failures += len(testSuite.errors)
+            total += testSuite.testsRun
+
+        result = [total - failures, total]
+    else:
+        print("Invalid input, must be a filename, install, or test.")
+        sys.exit(2)
+
+    # Output based on function mode
+    outputInterface = OutputInterface(mode)
+    outputInterface.showResults(result)

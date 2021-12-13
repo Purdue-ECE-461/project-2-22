@@ -1,0 +1,184 @@
+<!doctype html>
+<!--
+ Copyright 2021 Google LLC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<html lang="en">
+<head>
+  <title>Private and Public Module Registry Handler</title>
+  <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 50%;
+    }
+    tr {
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Private and Public Module Registry Handler</h1>
+
+<!--  <h2>{{ endpoint }}</h2>-->
+  <img src="https://www.gannett-cdn.com/-mm-/b90380d7a8f70b9eb33ecef39b3cf96e0d3752d6/c=102-265-844-684/local/-/media/2015/06/29/Indianapolis/Indianapolis/635711681144351643-PrestoLogo-PurdueTrain.jpg?width=660&height=373&fit=crop&format=pjpg&auto=webp" alt="jconline.com">
+
+  <br>
+  <br>
+  <br>
+
+  <center>
+    <table>
+      <tr>
+        <th>Command (status from front end)</th>
+        <th>Request</th>
+        <th>Input Value</th>
+      </tr>
+      <tr>
+        <td>Get all packages (???)</td>
+        <td>List</td>
+        <td>Offset</td>
+      </tr>
+      <tr>
+        <td>Get single package by ID (works)</td>
+        <td>List</td>
+        <td>ID</td>
+      </tr>
+      <tr>
+        <td>Get single package by Name (works)</td>
+        <td>List</td>
+        <td>Name</td>
+      </tr>
+      <tr>
+        <td>Post package (does not work from front end)</td>
+        <td>Upload</td>
+        <td>Name, Content, Version, URL, JSProgram</td>
+      </tr>
+      <tr>
+        <td>Ingest package (does not work from front end)</td>
+        <td>Upload</td>
+        <td>Name, Version, URL, JSProgram</td>
+      </tr>
+      <tr>
+        <td>Update package (no logic for this)</td>
+        <td>Update</td>
+        <td>Name, Content, Version, URL, JSProgram</td>
+      </tr>
+      <tr>
+        <td>Delete single package (works)</td>
+        <td>Delete</td>
+        <td>ID</td>
+      </tr>
+      <tr>
+        <td>Delete all versions of package (???)</td>
+        <td>Delete</td>
+        <td>Name</td>
+      </tr>
+      <tr>
+        <td>Rate package (works)</td>
+        <td>Rate</td>
+        <td>ID</td>
+      </tr>
+      <tr>
+        <td>Reset (delete all packages) (works)</td>
+        <td>Delete</td>
+        <td>Blank</td>
+      </tr>
+    </table>
+  </center>
+
+  <br>
+  <br>
+  <br>
+
+  Run Command
+  <br>
+  <br>
+  <form action="/start" method="post">
+    <label for="request">Request:</label><select id="request">
+      <option value="list">List</option>
+      <option value="upload">Upload</option>
+      <option value="update">Update</option>
+      <option value="rate">Rate</option>
+      <option value="delete">Delete</option>
+    </select> <br>
+    <label for="id">Id:</label><input type="number" id="id"> <br>
+    <label for="name">Name:</label><input type="text" id="name"> <br>
+    <label for="content">Content:</label><input type="text" id="content"> <br>
+    <label for="version">Version:</label><input type="text" id="version"> <br>
+    <label for="url">URL:</label><input type="text" id="url"> <br>
+    <label for="jsprogram">JSProgram:</label><input type="text" id="jsprogram"> <br>
+    <label for="offset">Offset:</label><input type="number" id="offset"> <br>
+    <input type="submit" name= "submit" value="Submit" />
+  </form>
+
+  <br>
+  <br>
+  <br>
+
+  <img src="https://marcom.purdue.edu/app/uploads/2020/01/2_UniversityLogo_Horizontal.png" alt="marcom.purdue.edu"> <br>
+
+
+<!--  <h2>Last 10 visits</h2>-->
+<!--  {% for time in times %}-->
+<!--    <p>{{ time }}</p>-->
+<!--  {% endfor %}-->
+
+  <button id="sign-in" hidden=false>Sign In</button>
+
+  <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+  <script type="module">
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAZ2rstub-bmmtIplT9UXXfk4TTTQZQufo",
+      authDomain: "ece-461-project-2-22.firebaseapp.com",
+      projectId: "ece-461-project-2-22",
+      storageBucket: "ece-461-project-2-22.appspot.com",
+      messagingSenderId: "678608535588",
+      appId: "1:678608535588:web:f181956299439eb02058b1",
+      measurementId: "G-GRZYFEEB3Q"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <div id="firebaseui-auth-container"></div>
+
+  <button id="sign-out" hidden=true>Sign Out</button>
+
+  <div id="login-info" hidden=true>
+    <h2>Login info:</h2>
+    {% if user_data %}
+      <dl>
+        <dt>Name</dt><dd>{{ user_data['displayname'] }}</dd>
+        <dt>Email</dt><dd>{{ user_data['email'] }}</dd>
+      </dl>
+    {% elif error_message %}
+      <p>Error: {{ error_message }}</p>
+    {% endif %}
+  </div>
+
+</body>
+</html>

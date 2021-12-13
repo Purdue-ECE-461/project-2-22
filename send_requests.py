@@ -282,7 +282,3 @@ if __name__ == '__main__':
 
     #res = ping_post_package('fecha-1', '4.2.1', 'ff', '', '', package_content=content)
 
-    res = ping_rate_package_by_id(595)
-
-    print(res)
-
